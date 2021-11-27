@@ -7,9 +7,9 @@ import pygame_menu as pgm
 class GameState:
     """
     Хранит текущее состояние игры
-    TODO: Реализовать
     """
 
+    # TODO: Реализовать
     def __init__(self):
         pass
 
@@ -17,9 +17,9 @@ class GameState:
 class Game:
     """
     Обрабатывает выборы игрока относительно игры
-    TODO: Реализовать
     """
 
+    # TODO: Допилить
     def __init__(self):
         pg.init()
         pg.display.set_caption("Hangman")
@@ -37,10 +37,10 @@ class Game:
 
     def on_event(self, event):
         if event.type == pg.QUIT:
-            print("on_event() -- pg.QUIT")
+            print("on_event(): pg.QUIT")
             self._running = False
         if event.type == pg.VIDEORESIZE:
-            print("on_event() -- pg.VIDEORESIZE")
+            print("on_event(): pg.VIDEORESIZE")
             self._surface = pg.display.set_mode((event.w, event.h), pg.RESIZABLE)
             self.on_resize()
 
@@ -64,12 +64,11 @@ class Game:
             for event in events:
                 self.on_event(event)
 
-            # TODO: Разобраться, как вообще должен выглядить геймлуп с этим меню. Или лучше вообще и не геймлуп?
             if self._menu.is_enabled():
                 self._menu.update(events)
                 self._menu.draw(self._surface)
 
-            pg.display.update()  # TODO: Использовать dirty_rects (https://www.pygame.org/docs/tut/newbieguide.html)
+            pg.display.update()
         self.cleanup()
 
 
