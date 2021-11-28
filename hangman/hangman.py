@@ -27,10 +27,15 @@ class Game:
         self._size = self._width, self._height = 640, 400
         self._surface = pg.display.set_mode(self._size, pg.RESIZABLE)
 
+        self._stat_menu = pgm.menu.Menu(
+            title="Hangman", height=self._height, width=self._width
+        )
+        self._stat_menu.add.button("Back", pgm.events.BACK)
+
         self._menu = pgm.menu.Menu(
             title="Hangman", height=self._height, width=self._width
         )
-        self._menu.add.button("Play", self.new_game)
+        self._menu.add.button("Play", self._stat_menu)
         self._menu.add.button("Quit", pgm.events.EXIT)
 
         self._running = True
@@ -53,10 +58,6 @@ class Game:
         print("on_resize()")
         self._size = self._width, self._height = self._surface.get_size()
         self._menu.resize(self._width, self._height)
-
-    def new_game(self):
-        print("new_game()")
-        pass
 
     def run(self):
         while self._running:
