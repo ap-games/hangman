@@ -1,3 +1,6 @@
+# Game temp files
+.stats
+
 # JetBrains IDE files
 .idea/
 
