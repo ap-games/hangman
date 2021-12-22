@@ -1,20 +1,8 @@
-import pygame as pg
-import pygame_menu as pgm
-from hangman.events import CLEAR_STATS
+from hangman.events import *
 
 
 from hangman.statistics import Statistics
 from hangman.menus import Menus
-
-
-class GameState:
-    """
-    Хранит текущее состояние игры
-    """
-
-    # TODO: Реализовать
-    def __init__(self):
-        pass
 
 
 class Game:
@@ -43,6 +31,16 @@ class Game:
         if event.type == CLEAR_STATS:
             print("on_event(): CLEAR_STATS")
             self._stats.clear()
+        if event.type == CONTINUE:
+            print("on_event(): CONTINUE")
+            pass
+        # TODO: Найти нормальную функцию отрисовки меню, не ломающую функциал кнопок
+        if event.type == LOSE:
+            print("on_event(): LOSE")
+            self._menus.defeat.mainloop(self._surface)
+        if event.type == WIN:
+            print("on_event(): WIN")
+            self._menus.victory.mainloop(self._surface)
 
     def run(self):
         while self._running:

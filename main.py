@@ -3,10 +3,12 @@
 
 from hangman.game import Game
 
+# TODO: добавить нормальное логгирование
+
 
 class Defaults:
-    WIDTH = 640
-    HEIGHT = 400
+    WIDTH = 850
+    HEIGHT = 650
     STAT_FILE = ".stats"
 
 

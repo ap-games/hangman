@@ -1,8 +1,11 @@
 import pygame as pg
 
-# TODO: разобраться, норм ли это вообще способ создавать свои эвенты
 
 CLEAR_STATS = pg.event.custom_type()
+ALP = pg.event.custom_type()
+CONTINUE = pg.event.custom_type()
+LOSE = pg.event.custom_type()
+WIN = pg.event.custom_type()
 
 
 def post_clear_stats():
