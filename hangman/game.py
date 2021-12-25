@@ -20,7 +20,7 @@ class Game:
         # FIXME: WIP
         self._cond = Conditions(None, None, False, False)
         self._game_state = GameState()
-        self._menus = Menus(self._width, self._height, self._cond, self._game_state)
+        self._menus = Menus(self._width, self._height, self._cond, self._game_state, self._surface)
         self._running = True
 
     def on_event(self, event):

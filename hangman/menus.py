@@ -11,9 +11,10 @@ class Menus:
 
     # TODO: Допилить менюшки
 
-    def __init__(self, width: int, height: int, cond: Conditions, game_state: GameState):
+    def __init__(self, width: int, height: int, cond: Conditions, game_state: GameState, surface: any):
         self._height = height
         self._width = width
+        self._surface = surface
         self.cond = cond
         self.game_state = game_state
         self.cursor = pgm.locals.CURSOR_HAND

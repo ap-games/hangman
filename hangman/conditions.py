@@ -20,7 +20,11 @@ class Categories(Enum):
 
     ALL = 1
     ANIMALS = 2
-    COUNTRIES = 3
+    BIRDS = 3
+    CHEMISTRY = 4
+    COUNTRIES = 5
+    FOOD = 6
+    FRUITS = 6
 
 
 class Conditions:
