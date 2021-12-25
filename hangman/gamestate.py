@@ -17,6 +17,7 @@ class GameState:
         self._lifes: int = 8
         # Переприсваивается в функции _create_word() на длину слова
         self._word_len: int = 0
+        self._hint = False
         self.proc_letter: str = "-"
         self.game_alphabet = self._create_alphabet()
         self.word = self._create_word()
@@ -32,6 +33,20 @@ class GameState:
         word = list(rand_word)
         print("_create_word(self)")
         return word
+
+    def get_hint(self):
+        print("get_hint")
+
+        if self._hint == False and self._word_len > 1:
+            for letter in self.word:
+                print(f"Hint letter: {letter}")
+
+                if self.game_alphabet.get(letter) == False:
+                    self.update_state(letter)
+                    self._hint = True
+                    return self._hint
+
+        return self._hint
 
     def update_state(self, letter: str):
         self.proc_letter = letter

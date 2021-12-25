@@ -2,7 +2,7 @@ import pygame_menu as pgm
 
 from hangman.events import *
 from hangman.gamestate import *
-
+from hangman.conditions import *
 
 class Menus:
     """
@@ -11,16 +11,17 @@ class Menus:
 
     # TODO: Допилить менюшки
 
-    def __init__(self, width: int, height: int):
+    def __init__(self, width: int, height: int, cond: Conditions, game_state: GameState):
         self._height = height
         self._width = width
+        self.cond = cond
+        self.game_state = game_state
         self.cursor = pgm.locals.CURSOR_HAND
-        self.game_state = GameState()
         self.victory = self._create_victory()
         self.defeat = self._create_defeat()
-        self.game = self._create_game(self.game_state)
+        # self.game = self._create_game(self.game_state)
         self.stats = self._create_stats()
-        self.settings = self._create_settings(self.game)
+        self.settings, self.game = self._create_settings(self.cond)
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
@@ -44,13 +45,21 @@ class Menus:
         print("Stats")
         return stat
 
-    def _create_settings(self, game):
+    def _create_settings(self, cond):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
-        settings.add.button("Назад", pgm.events.BACK)
+
+        print(self.cond.hint)
+        self.cond.set_cond_hint(True)
+        print(self.cond.hint)
+
+        game = self._create_game(self.game_state)
+
         settings.add.button("Продолжить", game)
-        return settings
+        settings.add.button("Назад", pgm.events.BACK)
+
+        return settings, game
 
     def _create_main(self, settings, stats):
         main = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
@@ -72,19 +81,28 @@ class Menus:
         # button = game.add.button(letter, game_state.update_state(letter))
         # button.set_position(50.0, 800.0)
         # button.set_position()
-        b = game.add.button("тест", pgm.events.NONE)
+        # b = game.add.button("тест", pgm.events.NONE)
         # b.set_col_row_index(10, 100, 10)
         # b.set_position(10.0,200.0)
 
-        back = game.add.button("Назад", pgm.events.BACK)
+        self._add_hint_button(game, self.cond.hint)
+        game.add.button("Назад", pgm.events.BACK)
         return game
+
+    def _add_hint_button(self, game, hint):
+        print(f"In add_but: {hint}")
+        if hint == False:
+            return
+
+        game.add.button("Подсказка", post_hint)
+        return
 
     # TODO: доделать кнопки
     def _create_victory(self):
         victory = pgm.menu.Menu(
             title="Вы выиграли!", height=self._height, width=self._width
         )
-        victory.add.button("Назад", pgm.events.BACK)
+        victory.add.button("Назад", pgm.events.PYGAME_QUIT)
         print("_create_victory(self)")
         return victory
 
@@ -92,6 +110,7 @@ class Menus:
         defeat = pgm.menu.Menu(
             title="Вы проиграли!", height=self._height, width=self._width
         )
-        defeat.add.button("Назад", pgm.events.BACK)
+        defeat.add.button("Назад", post_clear_stats)
+        defeat.add.button("Назад", pgm.events.PYGAME_QUIT)
         print("_create_defeat(self)")
         return defeat

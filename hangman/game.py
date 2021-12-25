@@ -3,7 +3,8 @@ from hangman.events import *
 
 from hangman.statistics import Statistics
 from hangman.menus import Menus
-
+from hangman.gamestate import GameState
+from hangman.conditions import *
 
 class Game:
     """
@@ -16,7 +17,10 @@ class Game:
         self._width, self._height = width, height
         self._surface = pg.display.set_mode((self._width, self._height), pg.RESIZABLE)
         self._stats = Statistics(stat_file)
-        self._menus = Menus(self._width, self._height)
+        # FIXME: WIP
+        self._cond = Conditions(None, None, False, False)
+        self._game_state = GameState()
+        self._menus = Menus(self._width, self._height, self._cond, self._game_state)
         self._running = True
 
     def on_event(self, event):
@@ -31,6 +35,9 @@ class Game:
         if event.type == CLEAR_STATS:
             print("on_event(): CLEAR_STATS")
             self._stats.clear()
+        if event.type == HINT:
+            self._menus.game_state.get_hint()
+            print("on_event(): HINT")
         if event.type == CONTINUE:
             print("on_event(): CONTINUE")
             pass

@@ -25,12 +25,18 @@ class Categories(Enum):
 
 class Conditions:
     def __init__(
-        self, difficulty: Difficulty, categories: set, timer: bool, hint: bool
+        self, difficulty: Difficulty, categories: set, cond_timer: bool, cond_hint: bool
     ):
         self._difficulty = difficulty
         self._categories = categories
-        self._timer = timer
-        self._hint = hint
+        self._cond_timer = cond_timer
+        self._cond_hint = cond_hint
+
+    def set_cond_timer(self, cond_timer):
+        self._cond_timer = cond_timer
+
+    def set_cond_hint(self, cond_hint):
+        self._cond_hint = cond_hint
 
     @property
     def difficulty(self) -> Difficulty:
@@ -42,8 +48,8 @@ class Conditions:
 
     @property
     def timer(self) -> bool:
-        return self._timer
+        return self._cond_timer
 
     @property
     def hint(self) -> bool:
-        return self._hint
+        return self._cond_hint
