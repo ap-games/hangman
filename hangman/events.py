@@ -8,8 +8,5 @@ LOSE = pg.event.custom_type()
 WIN = pg.event.custom_type()
 
 
-def post_clear_stats():
-    pg.event.post(pg.event.Event(CLEAR_STATS))
-
-def post_hint():
-    pg.event.post(pg.event.Event(HINT))
+def post_lost(event: any):
+    pg.event.post(pg.event.Event(event))

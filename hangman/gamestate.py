@@ -1,5 +1,5 @@
 import pygame as pg
-from hangman.events import CONTINUE, LOSE, WIN
+from hangman.events import *
 
 ALPHABET = [
     "А", "Б", "В", "Г", "Д", "Е", "Ж", "И", "Й", "К", "Л", "М", "Н", "О",
@@ -69,11 +69,11 @@ class GameState:
 
         print("word_len = {}, count = {}".format(self._word_len, self._lifes))
         if self._word_len > 0 and self._lifes > 0:
-            pg.event.post(pg.event.Event(CONTINUE))
+            post_lost(CONTINUE)
             return self.game_alphabet
         elif self._word_len > 0 and self._lifes == 0:
-            pg.event.post(pg.event.Event(LOSE))
+            post_lost(LOSE)
             return self.game_alphabet
         elif self._word_len <= 0 and self._lifes >= 0 and self._lifes != 8:
-            pg.event.post(pg.event.Event(WIN))
+            post_lost(WIN)
             return self.game_alphabet
