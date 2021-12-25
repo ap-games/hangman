@@ -38,6 +38,15 @@ class Conditions:
     def set_cond_hint(self, cond_hint):
         self._cond_hint = cond_hint
 
+    def set_difficulty(self, value: int):
+        self._difficulty = value
+
+    def add_category(self, value: int):
+        self.categories.add(value)
+
+    def delete_category(self, value: int):
+        self.categories.remove(value)
+
     @property
     def difficulty(self) -> Difficulty:
         return self._difficulty

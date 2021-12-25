@@ -1,8 +1,9 @@
 import pygame_menu as pgm
-
+from typing import Tuple
 from hangman.events import *
 from hangman.gamestate import *
 from hangman.conditions import *
+
 
 class Menus:
     """
@@ -45,15 +46,50 @@ class Menus:
         print("Stats")
         return stat
 
+    def _change_difficulty(self, value: Tuple[any, int], difficulty: str) -> None:
+        selected, index = value
+        print(f'Selected difficulty: "{selected}" ({difficulty}) at index {index}')
+        self.cond.set_difficulty(index + 1)
+
+    def _change_hint(self, value: Tuple, enabled: bool) -> None:
+        if enabled:
+            self.cond.set_cond_hint(True)
+        else:
+            self.cond.set_cond_hint(False)
+        print(f'Hint is available: {self.cond.hint}')
+
+    def _change_category(self, value: Tuple, enabled: bool) -> None:
+        selected, index = value
+        if index == 0 & enabled:
+            self.cond.set_cond_hint(True)
+        else:
+            self.cond.set_cond_hint(False)
+        print(f'Hint is available: {self.cond.hint}')
+
     def _create_settings(self, cond):
+        item_description_widget: 'pgm.widgets.Label'
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
-
-        print(self.cond.hint)
-        self.cond.set_cond_hint(True)
-        print(self.cond.hint)
-
+        settings.add.selector('',
+                              [('Легко', 'EASY'),
+                               ('Средне', 'MEDIUM'),
+                               ('Сложно', 'HARD')],
+                              onchange=self._change_difficulty,
+                              selector_id='select_difficulty')
+        settings.add.selector('Подсказка',
+                              [('Да', True),
+                               ('Нет', False)],
+                              onchange=self._change_hint,
+                              selector_id='select_hint')
+        settings.add.label('Категории')
+        settings.add.selector(
+            'ALL',
+            items=[('enable', True),
+                   ('disable', False)],
+            onchange=self._change_category,
+            selector_id='select_ALL'
+        )
         game = self._create_game(self.game_state)
 
         settings.add.button("Продолжить", game)
