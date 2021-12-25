@@ -1,6 +1,11 @@
 import pygame as pg
 from hangman.events import CONTINUE, LOSE, WIN
 
+ALPHABET = [
+    "А", "Б", "В", "Г", "Д", "Е", "Ж", "И", "Й", "К", "Л", "М", "Н", "О",
+    "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь",
+    "Э", "Ю", "Я"
+]
 
 class GameState:
     """
@@ -9,21 +14,15 @@ class GameState:
 
     def __init__(self):
         # Условие игры: 8 попыток
-        self._count: int = 8
+        self._lifes: int = 8
         # Переприсваивается в функции _create_word() на длину слова
         self._word_len: int = 0
         self.proc_letter: str = "-"
         self.game_alphabet = self._create_alphabet()
-        self.proc_alphabet = self.update_state(str)
         self.word = self._create_word()
 
     def _create_alphabet(self):
-        keys = [
-            "А", "Б", "В", "Г", "Д", "Е", "Ж", "И", "Й", "К", "Л", "М", "Н", "О",
-            "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь",
-            "Э", "Ю", "Я"
-        ]
-        alphabet = dict.fromkeys(keys, False)
+        alphabet = dict.fromkeys(ALPHABET, False)
         return alphabet
 
     def _create_word(self):
@@ -46,19 +45,20 @@ class GameState:
 
             print(f"UPD ALP:\n{self.game_alphabet}")
 
-            self._count -= 1
-            self._word_len -= self.word.count(letter)
+            if self.word.count(letter) == 0: self._lifes -= 1
+            else: self._word_len -= self.word.count(letter)
+
         else:
             print("Letter already proc")
             return self.game_alphabet
 
-        print("word_len = {}, count = {}".format(self._word_len, self._count))
-        if self._word_len > 0 and self._count > 0:
+        print("word_len = {}, count = {}".format(self._word_len, self._lifes))
+        if self._word_len > 0 and self._lifes > 0:
             pg.event.post(pg.event.Event(CONTINUE))
             return self.game_alphabet
-        elif self._word_len > 0 and self._count == 0:
+        elif self._word_len > 0 and self._lifes == 0:
             pg.event.post(pg.event.Event(LOSE))
             return self.game_alphabet
-        elif self._word_len <= 0 and self._count >= 0 and self._count != 8:
+        elif self._word_len <= 0 and self._lifes >= 0 and self._lifes != 8:
             pg.event.post(pg.event.Event(WIN))
             return self.game_alphabet

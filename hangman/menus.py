@@ -1,7 +1,7 @@
 import pygame_menu as pgm
 
 from hangman.events import *
-from hangman.gamestat import *
+from hangman.gamestate import *
 
 
 class Menus:
@@ -61,17 +61,12 @@ class Menus:
 
     def _create_game(self, game_state):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
-        alphabet = [
-            "А", "Б", "В", "Г", "Д", "Е", "Ж", "И", "Й", "К", "Л", "М", "Н", "О",
-            "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь",
-            "Э", "Ю", "Я"
-        ]
 
         buttons = lambda x: game.add.button(
             x, lambda: self.game_state.update_state(x), cursor=self.cursor
         )
-        [buttons(letter) for letter in alphabet]
-
+        for letter in ALPHABET:
+            buttons(letter)
         # # WIP
         # [buttons(letter) for letter in alphabet]
         # button = game.add.button(letter, game_state.update_state(letter))
