@@ -15,21 +15,19 @@ class Difficulty(Enum):
 class Categories(Enum):
     """
     Категории слов для угадывания
-    TODO: Найти больше категорий и базы слов для них
     """
 
-    ALL = 1
-    ANIMALS = 2
-    BIRDS = 3
-    CHEMISTRY = 4
-    COUNTRIES = 5
-    FOOD = 6
+    ANIMALS = 1
+    BIRDS = 2
+    CHEMISTRY = 3
+    COUNTRIES = 4
+    FOOD = 5
     FRUITS = 6
 
 
 class Conditions:
     def __init__(
-        self, difficulty: Difficulty, categories: set, cond_timer: bool, cond_hint: bool
+        self, difficulty: Difficulty, categories: set(Categories), cond_timer: bool, cond_hint: bool
     ):
         self._difficulty = difficulty
         self._categories = categories
@@ -47,7 +45,7 @@ class Conditions:
         return self._difficulty
 
     @property
-    def categories(self) -> set:
+    def categories(self) -> set(Categories):
         return self._categories
 
     @property

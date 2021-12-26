@@ -11,18 +11,20 @@ class Menus:
 
     # TODO: Допилить менюшки
 
-    def __init__(self, width: int, height: int, cond: Conditions, game_state: GameState, surface: any):
+    def __init__(self, width: int, height: int, conds: Conditions, game_state: GameState, surface: any):
         self._height = height
         self._width = width
         self._surface = surface
-        self.cond = cond
-        self.game_state = game_state
         self.cursor = pgm.locals.CURSOR_HAND
+        
+        self.game_state = game_state
+        self.cond = conds
+
         self.victory = self._create_victory()
         self.defeat = self._create_defeat()
-        # self.game = self._create_game(self.game_state)
         self.stats = self._create_stats()
-        self.settings, self.game = self._create_settings(self.cond)
+        self.game = self._create_game(self.game_state)
+        self.settings = self._create_settings(conds)
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
@@ -46,21 +48,15 @@ class Menus:
         print("Stats")
         return stat
 
-    def _create_settings(self, cond):
+    def _create_settings(self, conds: Conditions):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
-
-        print(self.cond.hint)
-        self.cond.set_cond_hint(True)
-        print(self.cond.hint)
-
-        game = self._create_game(self.game_state)
-
-        settings.add.button("Продолжить", game)
+        
+        settings.add.button("Продолжить", post_start_game)
         settings.add.button("Назад", pgm.events.BACK)
 
-        return settings, game
+        return settings
 
     def _create_main(self, settings, stats):
         main = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)

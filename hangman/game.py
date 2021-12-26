@@ -14,11 +14,17 @@ class Game:
     def __init__(self, width, height, stat_file):
         pg.init()
         pg.display.set_caption("Hangman")
+
         self._width, self._height = width, height
         self._surface = pg.display.set_mode((self._width, self._height), pg.RESIZABLE)
+
         self._stats = Statistics(stat_file)
-        # FIXME: WIP
-        self._cond = Conditions(None, None, False, False)
+        self._cond = Conditions(
+            difficulty=Difficulty.EASY,
+            categories={Categories.ANIMALS},
+            cond_hint=False,
+            cond_timer=False,
+        )
         self._game_state = GameState()
         self._menus = Menus(self._width, self._height, self._cond, self._game_state, self._surface)
         self._running = True
@@ -48,13 +54,21 @@ class Game:
         if event.type == WIN:
             print("on_event(): WIN")
             self._menus.victory.mainloop(self._surface)
+        if event.type == START_GAME:
+            print("on_event(); START_GAME")
+            self._game_state.change_word(self._cond.categories)
+            # dev: если нужно будет после смены слова пересоздать игровое меню
+            # то можно в классе Menus определить фукнцию, которая при вызове извне бы это делала
+            # и вызвать её здесь
+            self._menus.game.mainloop(self._surface)
+
 
     def run(self):
         while self._running:
             events = pg.event.get()
             for event in events:
                 self.on_event(event)
-
+            
             if self._menus.main.is_enabled():
                 self._menus.main.update(events)
                 self._menus.main.draw(self._surface)

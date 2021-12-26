@@ -1,11 +1,27 @@
+from os import path
 import pygame as pg
+from hangman.conditions import Categories
 from hangman.events import *
+from random import choice
+import os.path
 
 ALPHABET = [
     "А", "Б", "В", "Г", "Д", "Е", "Ж", "И", "Й", "К", "Л", "М", "Н", "О",
     "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь",
     "Э", "Ю", "Я"
 ]
+
+# dev: возможно, это не лучший способ хранения этой мапы.
+# Eсли есть идеи или время на подумать, 
+# куда это можно перенести, то вперёд :)
+CATEGORY_FILENAME = {
+    Categories.ANIMALS: "animals.txt",
+    Categories.BIRDS: "birds.txt",
+    Categories.CHEMISTRY: "chemistry.txt",
+    Categories.COUNTRIES: "countries.txt",
+    Categories.FOOD: "food.txt",
+    Categories.FRUITS: "fruit.txt",
+}
 
 class GameState:
     """
@@ -15,24 +31,47 @@ class GameState:
     def __init__(self):
         # Условие игры: 8 попыток
         self._lifes: int = 8
-        # Переприсваивается в функции _create_word() на длину слова
-        self._word_len: int = 0
         self._hint = False
         self.proc_letter: str = "-"
         self.game_alphabet = self._create_alphabet()
-        self.word = self._create_word()
+        self.word: list(str) = ""
+        self._word_len: int = 0
 
     def _create_alphabet(self):
         alphabet = dict.fromkeys(ALPHABET, False)
         return alphabet
 
-    def _create_word(self):
-        # TODO реализовать нормальную работу со словами
-        rand_word = "КЛОУН"
-        self._word_len = len(rand_word)
-        word = list(rand_word)
-        print("_create_word(self)")
-        return word
+    def change_word(self, categories: set(Categories)) -> None:
+        """
+        Выбирает рандомное слово для угадывания из переданных категорий
+        """
+        print("change_word()")
+
+        if len(categories) == 0:
+            # TODO: решить, что делать в таком случае 
+            # (бросить ошибку? брать слова из всех категорий?)
+            print("err: change_word() - no categories specified!")
+            categories.append(Categories.ANIMALS)
+        
+        # выбрать случайную категорию переданного списка
+        # тут каст к листу, т.к. нет функций для выбора случайнго элемента из сета
+        random_category = choice(list(categories)) 
+
+        # открыть файл, соответствующий этой категории 
+        # dev: подумать, стоит ли делать это тут? мб стоит загрузить все слова заранее?
+        category_fname = CATEGORY_FILENAME[random_category]
+        path_to_dict = os.path.join('dicts', category_fname)
+
+        # выбрать из файла случайное слово
+        dict: list = None
+        with open(path_to_dict, "r") as fdict:
+            dict = fdict.read().splitlines()
+
+        word = choice(dict)
+        print(f"dbg: change_word() - new word: {word}")
+        word = list(word) # преобразовать слово в лист с буквами
+        self.word = word
+        self._word_len = len(word)
 
     def get_hint(self):
         print("get_hint")
