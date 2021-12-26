@@ -58,13 +58,42 @@ class Menus:
             self.cond.set_cond_hint(False)
         print(f'Hint is available: {self.cond.hint}')
 
-    def _change_category(self, value: Tuple, enabled: bool) -> None:
+    def _change_category(self, value: Tuple, enabled: str) -> None:
         selected, index = value
-        if index == 0 & enabled:
-            self.cond.set_cond_hint(True)
-        else:
-            self.cond.set_cond_hint(False)
-        print(f'Hint is available: {self.cond.hint}')
+        if enabled == 'ALL':
+            self.cond.add_category(1)
+            self.cond.add_category(2)
+            self.cond.add_category(3)
+            self.cond.add_category(4)
+            self.cond.add_category(5)
+            self.cond.add_category(6)
+        elif enabled == 'NONE':
+            self.cond.categories.clear()
+        elif enabled == 'ANIMALS':
+            self.cond.add_category(1)
+        elif enabled == 'NOT_ANIMALS':
+            self.cond.delete_category(1)
+        elif enabled == 'BIRDS':
+            self.cond.add_category(2)
+        elif enabled == 'NOT_BIRDS':
+            self.cond.delete_category(2)
+        elif enabled == 'CHEMISTRY':
+            self.cond.add_category(3)
+        elif enabled == 'NOT_CHEMISTRY':
+            self.cond.delete_category(3)
+        elif enabled == 'COUNTRIESS':
+            self.cond.add_category(4)
+        elif enabled == 'NOT_COUNTRIES':
+            self.cond.delete_category(4)
+        elif enabled == 'FOOD':
+            self.cond.add_category(5)
+        elif enabled == 'NOT_FOOD':
+            self.cond.delete_category(5)
+        elif enabled == 'FRUITS':
+            self.cond.add_category(6)
+        elif enabled == 'NOT_FRUITS':
+            self.cond.delete_category(6)
+        print(f'Category set: {self.cond.categories}, {selected}')
 
     def _create_settings(self, cond):
         item_description_widget: 'pgm.widgets.Label'
@@ -79,17 +108,60 @@ class Menus:
                               selector_id='select_difficulty')
         settings.add.selector('Подсказка',
                               [('Да', True),
-                               ('Нет', False)],
+                               ('Нет',  False)],
                               onchange=self._change_hint,
                               selector_id='select_hint')
         settings.add.label('Категории')
         settings.add.selector(
-            'ALL',
-            items=[('enable', True),
-                   ('disable', False)],
+            '',
+            items=[('выбрать все', 'ALL'),
+                   ('убрать все', 'NONE')],
             onchange=self._change_category,
             selector_id='select_ALL'
         )
+        settings.add.selector(
+            'Животные',
+            items=[('вкл', 'ANIMALS'),
+                   ('выкл', 'NOT_ANIMALS')],
+            onchange=self._change_category,
+            selector_id='select_ANIMALS'
+        )
+        settings.add.selector(
+            'Птицы',
+            items=[('вкл', 'BIRDS'),
+                   ('выкл', 'NOT_BIRDS')],
+            onchange=self._change_category,
+            selector_id='select_BIRDS'
+        )
+        settings.add.selector(
+            'Химия',
+            items=[('вкл', 'CHEMISTRY'),
+                   ('выкл', 'NOT_CHEMISTRY')],
+            onchange=self._change_category,
+            selector_id='select_CHEMISTRY'
+        )
+        settings.add.selector(
+            'Страны',
+            items=[('вкл', 'COUNTRIES'),
+                   ('выкл', 'NOT_COUNTRIES')],
+            onchange=self._change_category,
+            selector_id='select_COUNTRIES'
+        )
+        settings.add.selector(
+            'Еда',
+            items=[('вкл', 'FOOD'),
+                   ('выкл', 'NOT_FOOD')],
+            onchange=self._change_category,
+            selector_id='select_FOOD'
+        )
+        settings.add.selector(
+            'Фрукты',
+            items=[('вкл', 'FRUITS'),
+                   ('выкл', 'NOT_FRUITS')],
+            onchange=self._change_category,
+            selector_id='select_FRUITS'
+        )
+
         game = self._create_game(self.game_state)
 
         settings.add.button("Продолжить", game)

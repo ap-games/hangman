@@ -18,9 +18,12 @@ class Categories(Enum):
     TODO: Найти больше категорий и базы слов для них
     """
 
-    ALL = 1
-    ANIMALS = 2
-    COUNTRIES = 3
+    ANIMALS = 1
+    BIRDS = 2
+    CHEMISTRY = 3
+    COUNTRIES = 4
+    FOOD = 5
+    FRUITS = 6
 
 
 class Conditions:
@@ -46,6 +49,10 @@ class Conditions:
 
     def delete_category(self, value: int):
         self.categories.remove(value)
+
+    def set_category(self, value: int):
+        self.categories.clear()
+        self.categories.add(value)
 
     @property
     def difficulty(self) -> Difficulty:

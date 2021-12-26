@@ -18,7 +18,7 @@ class Game:
         self._surface = pg.display.set_mode((self._width, self._height), pg.RESIZABLE)
         self._stats = Statistics(stat_file)
         # FIXME: WIP
-        self._cond = Conditions(1, [1, 2], False, False)
+        self._cond = Conditions(1, {2}, False, False)
         self._game_state = GameState()
         self._menus = Menus(self._width, self._height, self._cond, self._game_state)
         self._running = True
