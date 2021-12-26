@@ -58,6 +58,13 @@ class Menus:
             self.cond.set_cond_hint(False)
         print(f'Hint is available: {self.cond.hint}')
 
+    def _change_timer(self, value: Tuple, enabled: bool) -> None:
+        if enabled:
+            self.cond.set_cond_timer(True)
+        else:
+            self.cond.set_cond_timer(False)
+        print(f'Timer: {self.cond.timer}')
+
     def _change_category(self, value: Tuple, enabled: str) -> None:
         selected, index = value
         if enabled == 'ALL':
@@ -111,6 +118,11 @@ class Menus:
                                ('Нет',  False)],
                               onchange=self._change_hint,
                               selector_id='select_hint')
+        settings.add.selector('Таймер',
+                              [('Да', True),
+                               ('Нет', False)],
+                              onchange=self._change_timer,
+                              selector_id='select_timer')
         settings.add.label('Категории')
         settings.add.selector(
             '',
