@@ -1,10 +1,13 @@
 from hangman.events import *
 
-
 from hangman.statistics import Statistics
 from hangman.menus import Menus
 from hangman.gamestate import GameState
 from hangman.conditions import *
+
+ALL_CATEGORIES = {Categories.ANIMALS, Categories.BIRDS, Categories.CHEMISTRY, Categories.COUNTRIES, Categories.FOOD,
+                  Categories.FRUITS}
+
 
 class Game:
     """
@@ -21,7 +24,7 @@ class Game:
         self._stats = Statistics(stat_file)
         self._cond = Conditions(
             difficulty=Difficulty.EASY,
-            categories={Categories.ANIMALS},
+            categories=ALL_CATEGORIES,
             cond_hint=False,
             cond_timer=False,
         )
@@ -62,13 +65,12 @@ class Game:
             # и вызвать её здесь
             self._menus.game.mainloop(self._surface)
 
-
     def run(self):
         while self._running:
             events = pg.event.get()
             for event in events:
                 self.on_event(event)
-            
+
             if self._menus.main.is_enabled():
                 self._menus.main.update(events)
                 self._menus.main.draw(self._surface)

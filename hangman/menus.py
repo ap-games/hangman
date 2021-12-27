@@ -29,8 +29,11 @@ class Menus:
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
-        # Подумать: Можно попробовать сократить код, засунув все менюшки в словарь, и обходом по словарю вызывать .resize(). С другой стороны не так уж и много у нас менюшек.
-        # Подумать: Возможно неплохо было бы ресайзить только текущее показываемое окно, но тогда нужно будет понять, как узнавать, какое окно сейчас показывается, а так же не забывать ресайзить при переходах между менюшками и их. Звучит довольно запарно. Учитывая, что менюшек у нас не так много, возможно хорошей идеей будет оставить как есть.
+        # Подумать: Можно попробовать сократить код, засунув все менюшки в словарь, и обходом по словарю вызывать
+        # .resize(). С другой стороны не так уж и много у нас менюшек. Подумать: Возможно неплохо было бы ресайзить
+        # только текущее показываемое окно, но тогда нужно будет понять, как узнавать, какое окно сейчас
+        # показывается, а так же не забывать ресайзить при переходах между менюшками и их. Звучит довольно запарно.
+        # Учитывая, что менюшек у нас не так много, возможно хорошей идеей будет оставить как есть.
 
         # TODO: проверить чтобы все меню ресайзились, и все были учтены здесь при добавлении кода
         print("resize()")
@@ -52,7 +55,7 @@ class Menus:
     def _change_difficulty(self, value: Tuple[any, int], difficulty: str) -> None:
         selected, index = value
         print(f'Selected difficulty: "{selected}" ({difficulty}) at index {index}')
-        self.cond.set_difficulty(index + 1)
+        self.cond.set_difficulty(Difficulty(index + 1))
 
     def _change_hint(self, value: Tuple, enabled: bool) -> None:
         if enabled:
@@ -71,45 +74,64 @@ class Menus:
     def _change_category(self, value: Tuple, enabled: str) -> None:
         selected, index = value
         if enabled == 'ALL':
-            self.cond.add_category(1)
-            self.cond.add_category(2)
-            self.cond.add_category(3)
-            self.cond.add_category(4)
-            self.cond.add_category(5)
-            self.cond.add_category(6)
+            self.settings.get_widget('select_ANIMALS').set_value('вкл')
+            self.cond.add_category(Categories.ANIMALS)
+            self.settings.get_widget('select_BIRDS').set_value('вкл')
+            self.cond.add_category(Categories.BIRDS)
+            self.settings.get_widget('select_CHEMISTRY').set_value('вкл')
+            self.cond.add_category(Categories.CHEMISTRY)
+            self.settings.get_widget('select_COUNTRIES').set_value('вкл')
+            self.cond.add_category(Categories.COUNTRIES)
+            self.settings.get_widget('select_FOOD').set_value('вкл')
+            self.cond.add_category(Categories.FOOD)
+            self.settings.get_widget('select_FRUITS').set_value('вкл')
+            self.cond.add_category(Categories.FRUITS)
         elif enabled == 'NONE':
-            self.cond.categories.clear()
+            # self.cond.categories.clear()
+            self.settings.get_widget('select_ANIMALS').set_value('выкл')
+            self.cond.delete_category(Categories.ANIMALS)
+            self.settings.get_widget('select_BIRDS').set_value('выкл')
+            self.cond.delete_category(Categories.BIRDS)
+            self.settings.get_widget('select_CHEMISTRY').set_value('выкл')
+            self.cond.delete_category(Categories.CHEMISTRY)
+            self.settings.get_widget('select_COUNTRIES').set_value('выкл')
+            self.cond.delete_category(Categories.COUNTRIES)
+            self.settings.get_widget('select_FOOD').set_value('выкл')
+            self.cond.delete_category(Categories.FOOD)
+            self.settings.get_widget('select_FRUITS').set_value('выкл')
+            self.cond.delete_category(Categories.FRUITS)
         elif enabled == 'ANIMALS':
-            self.cond.add_category(1)
+            self.cond.add_category(Categories.ANIMALS)
         elif enabled == 'NOT_ANIMALS':
-            self.cond.delete_category(1)
+            self.cond.delete_category(Categories.ANIMALS)
         elif enabled == 'BIRDS':
-            self.cond.add_category(2)
+            self.cond.add_category(Categories.BIRDS)
         elif enabled == 'NOT_BIRDS':
-            self.cond.delete_category(2)
+            self.cond.delete_category(Categories.BIRDS)
         elif enabled == 'CHEMISTRY':
-            self.cond.add_category(3)
+            self.cond.add_category(Categories.CHEMISTRY)
         elif enabled == 'NOT_CHEMISTRY':
-            self.cond.delete_category(3)
-        elif enabled == 'COUNTRIESS':
-            self.cond.add_category(4)
+            self.cond.delete_category(Categories.CHEMISTRY)
+        elif enabled == 'COUNTRIES':
+            self.cond.add_category(Categories.COUNTRIES)
         elif enabled == 'NOT_COUNTRIES':
-            self.cond.delete_category(4)
+            self.cond.delete_category(Categories.COUNTRIES)
         elif enabled == 'FOOD':
-            self.cond.add_category(5)
+            self.cond.add_category(Categories.FOOD)
         elif enabled == 'NOT_FOOD':
-            self.cond.delete_category(5)
+            self.cond.delete_category(Categories.FOOD)
         elif enabled == 'FRUITS':
-            self.cond.add_category(6)
+            self.cond.add_category(Categories.FRUITS)
         elif enabled == 'NOT_FRUITS':
-            self.cond.delete_category(6)
+            self.cond.delete_category(Categories.FRUITS)
+
         print(f'Category set: {self.cond.categories}, {selected}')
 
     def _create_settings(self, cond):
-        item_description_widget: 'pgm.widgets.Label'
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
+        print(f'Category set: {self.cond.categories}')
         settings.add.selector('',
                               [('Легко', 'EASY'),
                                ('Средне', 'MEDIUM'),

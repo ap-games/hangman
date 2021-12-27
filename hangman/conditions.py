@@ -27,7 +27,7 @@ class Categories(Enum):
 
 class Conditions:
     def __init__(
-        self, difficulty: Difficulty, categories: set(Categories), cond_timer: bool, cond_hint: bool
+        self, difficulty: Difficulty, categories: set[Categories], cond_timer: bool, cond_hint: bool
     ):
         self._difficulty = difficulty
         self._categories = categories
@@ -47,7 +47,7 @@ class Conditions:
         self.categories.add(value)
 
     def delete_category(self, value: Categories):
-        self.categories.remove(value)
+        self.categories.discard(value)
 
     def set_category(self, value: Categories):
         self.categories.clear()
