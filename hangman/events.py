@@ -1,16 +1,27 @@
-import pygame as pg
+from pygame import event
 
 
-CLEAR_STATS = pg.event.custom_type()
-HINT = pg.event.custom_type()
-CONTINUE = pg.event.custom_type()
-LOSE = pg.event.custom_type()
-WIN = pg.event.custom_type()
-START_GAME = pg.event.custom_type()
+CLEAR_STATS = event.custom_type()
+HINT = event.custom_type()
+CONTINUE = event.custom_type()
+LOSE = event.custom_type()
+WIN = event.custom_type()
+START_GAME = event.custom_type()
 
+def post_clear_stats():
+    event.post(event.Event(CLEAR_STATS))
 
-def post_lost(event: any):
-    pg.event.post(pg.event.Event(event))
+def post_hint():
+    event.post(event.Event(HINT))
+
+def post_continue():
+    event.post(event.Event(CONTINUE))
+
+def post_win():
+    event.post(event.Event(WIN))
+
+def post_lose():
+    event.post(event.Event(LOSE))
 
 def post_start_game():
-    pg.event.post(pg.event.Event(START_GAME))
+    event.post(event.Event(START_GAME))

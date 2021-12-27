@@ -1,3 +1,5 @@
+import pygame as pg
+
 from hangman.events import *
 
 
