@@ -37,6 +37,7 @@ class Game:
     def on_event(self, event):
         if event.type == pg.QUIT:
             print("on_event(): pg.QUIT")
+            self._stats.write_stats()
             self._running = False
         if event.type == pg.VIDEORESIZE:
             print("on_event(): pg.VIDEORESIZE")
@@ -55,8 +56,11 @@ class Game:
         # TODO: Найти нормальную функцию отрисовки меню, не ломающую функциал кнопок
         if event.type == LOSE:
             print("on_event(): LOSE")
+            self._stats.played += 1
             self._menus.defeat.mainloop(self._surface)
         if event.type == WIN:
+            self._stats.played += 1
+            self._stats.won += 1
             print("on_event(): WIN")
             self._menus.victory.mainloop(self._surface)
         if event.type == START_GAME:
