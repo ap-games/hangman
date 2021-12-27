@@ -12,7 +12,7 @@ ALPHABET = [
 ]
 
 # dev: возможно, это не лучший способ хранения этой мапы.
-# Eсли есть идеи или время на подумать, 
+# Eсли есть идеи или время на подумать,
 # куда это можно перенести, то вперёд :)
 CATEGORY_FILENAME = {
     Categories.ANIMALS: "animals.txt",
@@ -20,8 +20,9 @@ CATEGORY_FILENAME = {
     Categories.CHEMISTRY: "chemistry.txt",
     Categories.COUNTRIES: "countries.txt",
     Categories.FOOD: "food.txt",
-    Categories.FRUITS: "fruit.txt",
+    Categories.FRUITS: "fruits.txt",
 }
+
 
 class GameState:
     """
@@ -47,29 +48,25 @@ class GameState:
         """
         print("change_word()")
 
-        if len(categories) == 0:
-            # TODO: решить, что делать в таком случае 
-            # (бросить ошибку? брать слова из всех категорий?)
-            print("err: change_word() - no categories specified!")
-            categories.append(Categories.ANIMALS)
-        
+        # TODO: добавить категорию сложности
+
         # выбрать случайную категорию переданного списка
         # тут каст к листу, т.к. нет функций для выбора случайнго элемента из сета
-        random_category = choice(list(categories)) 
+        random_category = choice(list(categories))
 
-        # открыть файл, соответствующий этой категории 
+        # открыть файл, соответствующий этой категории
         # dev: подумать, стоит ли делать это тут? мб стоит загрузить все слова заранее?
         category_fname = CATEGORY_FILENAME[random_category]
-        path_to_dict = os.path.join('dicts', category_fname)
+        path_to_dict = os.path.join("dicts", category_fname)
 
         # выбрать из файла случайное слово
         dict: list = None
-        with open(path_to_dict, "r", encoding='utf-8') as fdict:
+        with open(path_to_dict, "r", encoding="utf-8") as fdict:
             dict = fdict.read().splitlines()
 
         word = choice(dict)
         print(f"dbg: change_word() - new word: {word}")
-        word = list(word) # преобразовать слово в лист с буквами
+        word = list(word)  # преобразовать слово в лист с буквами
         self.word = word
         self._word_len = len(word)
 
@@ -99,8 +96,10 @@ class GameState:
 
             print(f"UPD ALP:\n{self.game_alphabet}")
 
-            if self.word.count(letter) == 0: self._lifes -= 1
-            else: self._word_len -= self.word.count(letter)
+            if self.word.count(letter) == 0:
+                self._lifes -= 1
+            else:
+                self._word_len -= self.word.count(letter)
 
         else:
             print("Letter already proc")

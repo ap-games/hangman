@@ -1,14 +1,25 @@
 import pygame as pg
 
 from hangman.events import *
-
+import pygame_menu as pgm
+import datetime
 from hangman.statistics import Statistics
 from hangman.menus import Menus
 from hangman.gamestate import GameState
 from hangman.conditions import *
 
-ALL_CATEGORIES = {Categories.ANIMALS, Categories.BIRDS, Categories.CHEMISTRY, Categories.COUNTRIES, Categories.FOOD,
-                  Categories.FRUITS}
+ALL_CATEGORIES = {
+    Categories.ANIMALS,
+    Categories.BIRDS,
+    Categories.CHEMISTRY,
+    Categories.COUNTRIES,
+    Categories.FOOD,
+    Categories.FRUITS,
+}
+
+
+FPS = 60
+TIMER_CHECK = False
 
 
 class Game:
@@ -31,7 +42,9 @@ class Game:
             cond_timer=False,
         )
         self._game_state = GameState()
-        self._menus = Menus(self._width, self._height, self._cond, self._game_state, self._surface)
+        self._menus = Menus(
+            self._width, self._height, self._cond, self._game_state, self._surface
+        )
         self._running = True
 
     def on_event(self, event):
@@ -50,6 +63,10 @@ class Game:
         if event.type == HINT:
             self._menus.game_state.get_hint()
             print("on_event(): HINT")
+        if event.type == ENABLE_TIMER:
+            global TIMER_CHECK
+            TIMER_CHECK = True
+            print("on_event(): ENABLE_TIMER")
         if event.type == CONTINUE:
             print("on_event(): CONTINUE")
             pass
@@ -57,21 +74,37 @@ class Game:
         if event.type == LOSE:
             print("on_event(): LOSE")
             self._stats.played += 1
-            self._menus.defeat.mainloop(self._surface)
+            self._menus.game.enable()
+            self._menus.defeat.enable()
+            self._menus.defeat.draw(self._surface)
+            # self._menus.defeat.mainloop(self._surface)
         if event.type == WIN:
             self._stats.played += 1
             self._stats.won += 1
             print("on_event(): WIN")
-            self._menus.victory.mainloop(self._surface)
+            self._menus.victory.draw(self._surface)
         if event.type == START_GAME:
             print("on_event(); START_GAME")
+            if len(self._cond.categories) == 0:
+                return
             self._game_state.change_word(self._cond.categories)
-            # dev: если нужно будет после смены слова пересоздать игровое меню
+            # TODO: если нужно будет после смены слова пересоздать игровое меню
             # то можно в классе Menus определить фукнцию, которая при вызове извне бы это делала
             # и вызвать её здесь
+            print(self._menus.game.is_enabled())
             self._menus.game.mainloop(self._surface)
+            print(self._menus.game.is_enabled())
+            self._menus.game.disable(self._surface)
 
     def run(self):
+        # FIXME! WIP!
+        clock = pg.time.Clock()
+        global timer
+        timer = [0]
+        dt = 1.0 / FPS
+        timer_font = pgm.font.get_font(pgm.font.FONT_NEVIS, 100)
+        frame = 0
+
         while self._running:
             events = pg.event.get()
             for event in events:
@@ -80,4 +113,29 @@ class Game:
             if self._menus.main.is_enabled():
                 self._menus.main.update(events)
                 self._menus.main.draw(self._surface)
+
+                # Tick clock
+            if TIMER_CHECK == False:
+                pg.display.update()
+                continue
+
+            print(f"TIMER_CHECK = {TIMER_CHECK}")
+            clock.tick(FPS)
+            timer[0] += dt
+            frame += 1
+            # print(f"frame: {timer[0]}")
+
+            if timer[0] > 10:
+                exit(0)
+
+            time_string = str(datetime.timedelta(seconds=int(timer[0])))
+            time_blit = timer_font.render(time_string, True, (255, 255, 255))
+            time_blit_size = time_blit.get_size()
+            self._surface.blit(
+                time_blit,
+                (
+                    int(self._width / 2 - time_blit_size[0] / 2),
+                    int(self._height / 2 - time_blit_size[1] / 2),
+                ),
+            )
             pg.display.update()

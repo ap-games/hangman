@@ -22,12 +22,16 @@ class Categories(Enum):
     CHEMISTRY = 3
     COUNTRIES = 4
     FOOD = 5
-    FRUITS = 6
+    FRUITS = 7
 
 
 class Conditions:
     def __init__(
-        self, difficulty: Difficulty, categories: set[Categories], cond_timer: bool, cond_hint: bool
+        self,
+        difficulty: Difficulty,
+        categories: set[Categories],
+        cond_timer: bool,
+        cond_hint: bool,
     ):
         self._difficulty = difficulty
         self._categories = categories
