@@ -15,7 +15,6 @@ class Difficulty(Enum):
 class Categories(Enum):
     """
     Категории слов для угадывания
-    TODO: Найти больше категорий и базы слов для них
     """
 
     ANIMALS = 1
@@ -28,7 +27,7 @@ class Categories(Enum):
 
 class Conditions:
     def __init__(
-        self, difficulty: Difficulty, categories: set, cond_timer: bool, cond_hint: bool
+        self, difficulty: Difficulty, categories: set(Categories), cond_timer: bool, cond_hint: bool
     ):
         self._difficulty = difficulty
         self._categories = categories
@@ -41,16 +40,16 @@ class Conditions:
     def set_cond_hint(self, cond_hint):
         self._cond_hint = cond_hint
 
-    def set_difficulty(self, value: int):
+    def set_difficulty(self, value: Difficulty):
         self._difficulty = value
 
-    def add_category(self, value: int):
+    def add_category(self, value: Categories):
         self.categories.add(value)
 
-    def delete_category(self, value: int):
+    def delete_category(self, value: Categories):
         self.categories.remove(value)
 
-    def set_category(self, value: int):
+    def set_category(self, value: Categories):
         self.categories.clear()
         self.categories.add(value)
 
@@ -59,7 +58,7 @@ class Conditions:
         return self._difficulty
 
     @property
-    def categories(self) -> set:
+    def categories(self) -> set(Categories):
         return self._categories
 
     @property
