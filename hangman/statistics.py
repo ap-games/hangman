@@ -1,3 +1,7 @@
+import json
+from json.decoder import JSONDecodeError
+
+
 class Statistics:
     """
     Обновляет, загружает и выгружает статистику из файла
@@ -6,23 +10,46 @@ class Statistics:
     def __init__(self, filename: str):
         self._played: int = 0
         self._won: int = 0
-        self._filename = filename  # TODO: Подумать над куда положить файл
-        # TODO: Открыть файл и считать статистику, или создать файл статистики, если его нет
+        self._filename = filename
 
-    def flush(self) -> None:
+        try:
+            self._played, self._won = self.read_stats()
+        except (FileNotFoundError, JSONDecodeError, KeyError):
+            self.write_stats()
+        print(f"Stats: played -- {self._played}, won -- {self._won}")
+
+    def read_stats(self):
+        """
+        Считывает статистику из файла
+        """
+
+        data = None
+        with open(self._filename, "r") as fstat:
+            data = fstat.read()
+        data = json.loads(data)
+        return int(data["played"]), int(data["won"])
+
+    def write_stats(self) -> None:
         """
         Записывает статистику в файл
-        # TODO: Реализовать
         """
-        pass
+
+        stats = {"played": self._played, "won": self._won}
+
+        # TODO: возможно стоит ловить ошибки
+        with open(self._filename, "w") as fstat:
+            fstat.write(json.dumps(stats))
+            fstat.flush()
+        print(f"Written new stats to file: {stats}")
 
     def clear(self) -> None:
         """
         Обнуляет статистику и записывает в файл
         """
+
         self._played = 0
         self._won = 0
-        self.flush()
+        self.write_stats()
 
     @property
     def played(self) -> int:

@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from hangman.game import Game
+
+# TODO: добавить нормальное логгирование
+# TODO: проверить соблюдение принципов ООП и здравого смысла
+
+
+class Defaults:
+    WIDTH = 850
+    HEIGHT = 650
+    STAT_FILE = ".stats"
+
+
+def main():
+    game = Game(
+        width=Defaults.WIDTH, height=Defaults.HEIGHT, stat_file=Defaults.STAT_FILE
+    )
+    game.run()
+
+
+if __name__ == "__main__":
+    main()
