@@ -64,7 +64,7 @@ class GameState:
 
         # выбрать из файла случайное слово
         dict: list = None
-        with open(path_to_dict, "r") as fdict:
+        with open(path_to_dict, "r", encoding='utf-8') as fdict:
             dict = fdict.read().splitlines()
 
         word = choice(dict)

@@ -14,3 +14,6 @@ def post_lost(event: any):
 
 def post_start_game():
     pg.event.post(pg.event.Event(START_GAME))
+
+def post_clear_stats():
+    pg.event.post(pg.event.Event(CLEAR_STATS))

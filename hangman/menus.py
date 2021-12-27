@@ -44,7 +44,7 @@ class Menus:
     def _create_stats(self):
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
         stat.add.button("Назад", pgm.events.BACK)
-        stat.add.button("Сбросить", post_lost(CLEAR_STATS))
+        stat.add.button("Сбросить", post_clear_stats)
         print("Stats")
         return stat
 
@@ -107,7 +107,6 @@ class Menus:
         defeat = pgm.menu.Menu(
             title="Вы проиграли!", height=self._height, width=self._width
         )
-        defeat.add.button("Назад", post_lost(CLEAR_STATS))
         defeat.add.button("Назад", pgm.events.PYGAME_QUIT)
         print("_create_defeat(self)")
         return defeat
