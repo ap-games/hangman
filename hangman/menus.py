@@ -239,7 +239,7 @@ class Menus:
         if hint == False:
             return
 
-        game.add.button("Подсказка", post_lost(HINT))
+        game.add.button("Подсказка", post_hint)
         return
 
     # TODO: доделать кнопки

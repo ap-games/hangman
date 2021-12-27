@@ -108,11 +108,11 @@ class GameState:
 
         print("word_len = {}, count = {}".format(self._word_len, self._lifes))
         if self._word_len > 0 and self._lifes > 0:
-            post_lost(CONTINUE)
+            post_continue()
             return self.game_alphabet
         elif self._word_len > 0 and self._lifes == 0:
-            post_lost(LOSE)
+            post_lose()
             return self.game_alphabet
         elif self._word_len <= 0 and self._lifes >= 0 and self._lifes != 8:
-            post_lost(WIN)
+            post_win()
             return self.game_alphabet
