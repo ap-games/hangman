@@ -16,7 +16,6 @@ class Statistics:
             self._played, self._won = self.read_stats()
         except (FileNotFoundError, JSONDecodeError, KeyError):
             self.write_stats()
-        print(f"Stats: played -- {self._played}, won -- {self._won}")
 
     def read_stats(self):
         """
@@ -36,7 +35,6 @@ class Statistics:
 
         stats = {"played": self._played, "won": self._won}
 
-        # TODO: возможно стоит ловить ошибки
         with open(self._filename, "w") as fstat:
             fstat.write(json.dumps(stats))
             fstat.flush()
@@ -72,5 +70,7 @@ class Statistics:
         return self._played - self._won
 
     @property
-    def win_rate(self) -> float:
-        return round(self._won / self._played, 2)
+    def win_rate(self) -> float or None:
+        if self._played != 0:
+            return round(self._won / self._played, 2)
+        return None

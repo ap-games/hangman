@@ -8,6 +8,7 @@ LOSE = event.custom_type()
 WIN = event.custom_type()
 START_GAME = event.custom_type()
 ENABLE_TIMER = event.custom_type()
+BACK_TO_MAIN = event.custom_type()
 
 
 def post_clear_stats():
@@ -32,3 +33,7 @@ def post_lose():
 
 def post_start_game():
     event.post(event.Event(START_GAME))
+
+
+def post_back_to_main():
+    event.post(event.Event(BACK_TO_MAIN))
