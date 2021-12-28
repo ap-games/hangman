@@ -1,15 +1,14 @@
 from os import path
 import pygame as pg
+from pygame.constants import AUDIO_ALLOW_ANY_CHANGE
 from hangman.conditions import Categories
 from hangman.events import *
+from hangman.game import ALL_CATEGORIES
 from random import choice
 import os.path
 
 ALPHABET = list("АБВГДЕЖИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ")
 
-# dev: возможно, это не лучший способ хранения этой мапы.
-# Eсли есть идеи или время на подумать,
-# куда это можно перенести, то вперёд :)
 CATEGORY_FILENAME = {
     Categories.ANIMALS: "animals.txt",
     Categories.BIRDS: "birds.txt",
@@ -45,28 +44,24 @@ class GameState:
         print("change_word()")
 
         if len(categories) == 0:
-            # TODO: решить, что делать в таком случае
-            # (бросить ошибку? брать слова из всех категорий?)
             print("err: change_word() - no categories specified!")
-            categories.append(Categories.ANIMALS)
+            categories = ALL_CATEGORIES
 
-        # выбрать случайную категорию переданного списка
-        # тут каст к листу, т.к. нет функций для выбора случайнго элемента из сета
+        # выбрать случайную категорию 
         random_category = choice(list(categories))
 
-        # открыть файл, соответствующий этой категории
-        # dev: подумать, стоит ли делать это тут? мб стоит загрузить все слова заранее?
+        # открыть словарь этой категории
         category_fname = CATEGORY_FILENAME[random_category]
         path_to_dict = os.path.join("dicts", category_fname)
 
-        # выбрать из файла случайное слово
+        # выбрать из словаря случайное слово
         dict: list = None
         with open(path_to_dict, "r", encoding="utf-8") as fdict:
             dict = fdict.read().splitlines()
 
         word = choice(dict)
         print(f"dbg: change_word() - new word: {word}")
-        word = list(word)  # преобразовать слово в лист с буквами
+        word = list(word) 
         self.word = word
         self._word_len = len(word)
 
@@ -89,7 +84,6 @@ class GameState:
 
         print("game_state.update_state()")
         print(f"{self.proc_letter} - LETTER")
-        # print(f"CURRENT ALP: \n {self.game_alphabet}")
 
         if self.game_alphabet.get(self.proc_letter) == False:
             self.game_alphabet.update({self.proc_letter: True})

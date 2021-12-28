@@ -10,8 +10,6 @@ class Menus:
     Создает и хранит в себе игровые меню
     """
 
-    # TODO: Допилить менюшки
-
     def __init__(
         self,
         width: int,
@@ -36,13 +34,6 @@ class Menus:
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
-        # Подумать: Можно попробовать сократить код, засунув все менюшки в словарь, и обходом по словарю вызывать
-        # .resize(). С другой стороны не так уж и много у нас менюшек. Подумать: Возможно неплохо было бы ресайзить
-        # только текущее показываемое окно, но тогда нужно будет понять, как узнавать, какое окно сейчас
-        # показывается, а так же не забывать ресайзить при переходах между менюшками и их. Звучит довольно запарно.
-        # Учитывая, что менюшек у нас не так много, возможно хорошей идеей будет оставить как есть.
-
-        # TODO: проверить чтобы все меню ресайзились, и все были учтены здесь при добавлении кода
         print("resize()")
         self._width, self._height = width, height
         self.main.resize(width, height)
@@ -223,14 +214,6 @@ class Menus:
         )
         for letter in ALPHABET:
             buttons(letter)
-        # # WIP
-        # [buttons(letter) for letter in alphabet]
-        # button = game.add.button(letter, game_state.update_state(letter))
-        # button.set_position(50.0, 800.0)
-        # button.set_position()
-        # b = game.add.button("тест", pgm.events.NONE)
-        # b.set_col_row_index(10, 100, 10)
-        # b.set_position(10.0,200.0)
 
         self._add_hint_button(game, self.cond.hint)
         game.add.button("Назад", pgm.events.BACK)
@@ -244,7 +227,6 @@ class Menus:
         game.add.button("Подсказка", post_hint)
         return
 
-    # TODO: доделать кнопки
     def _create_victory(self):
         victory = pgm.menu.Menu(
             title="Вы выиграли!", height=self._height, width=self._width

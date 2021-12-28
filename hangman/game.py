@@ -61,7 +61,6 @@ class Game:
         if event.type == CONTINUE:
             print("on_event(): CONTINUE")
             pass
-        # TODO: Найти нормальную функцию отрисовки меню, не ломающую функциал кнопок
         if event.type == LOSE:
             print("on_event(): LOSE")
             self._stats.played += 1
@@ -74,9 +73,6 @@ class Game:
         if event.type == START_GAME:
             print("on_event(); START_GAME")
             self._game_state.change_word(self._cond.categories)
-            # dev: если нужно будет после смены слова пересоздать игровое меню
-            # то можно в классе Menus определить фукнцию, которая при вызове извне бы это делала
-            # и вызвать её здесь
             self._menus.game.mainloop(self._surface)
 
     def run(self):

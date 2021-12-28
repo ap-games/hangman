@@ -36,7 +36,6 @@ class Statistics:
 
         stats = {"played": self._played, "won": self._won}
 
-        # TODO: возможно стоит ловить ошибки
         with open(self._filename, "w") as fstat:
             fstat.write(json.dumps(stats))
             fstat.flush()

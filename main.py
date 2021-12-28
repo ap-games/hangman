@@ -3,9 +3,6 @@
 
 from hangman.game import Game
 
-# TODO: добавить нормальное логгирование
-# TODO: проверить соблюдение принципов ООП и здравого смысла
-
 
 class Defaults:
     WIDTH = 850
