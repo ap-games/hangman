@@ -10,8 +10,6 @@ class Menus:
     Создает и хранит в себе игровые меню
     """
 
-    # TODO: Допилить менюшки
-
     def __init__(
         self,
         width: int,
@@ -23,7 +21,6 @@ class Menus:
         self._height = height
         self._width = width
         self._surface = surface
-        self.cursor = pgm.locals.CURSOR_HAND
 
         self.game_state = game_state
         self.cond = conds
@@ -36,14 +33,6 @@ class Menus:
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
-        # Подумать: Можно попробовать сократить код, засунув все менюшки в словарь, и обходом по словарю вызывать
-        # .resize(). С другой стороны не так уж и много у нас менюшек. Подумать: Возможно неплохо было бы ресайзить
-        # только текущее показываемое окно, но тогда нужно будет понять, как узнавать, какое окно сейчас
-        # показывается, а так же не забывать ресайзить при переходах между менюшками и их. Звучит довольно запарно.
-        # Учитывая, что менюшек у нас не так много, возможно хорошей идеей будет оставить как есть.
-
-        # TODO: проверить чтобы все меню ресайзились, и все были учтены здесь при добавлении кода
-        print("resize()")
         self._width, self._height = width, height
         self.main.resize(width, height)
         self.stats.resize(width, height)
@@ -56,12 +45,10 @@ class Menus:
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
         stat.add.button("Назад", pgm.events.BACK)
         stat.add.button("Сбросить", post_clear_stats)
-        print("Stats")
         return stat
 
     def _change_difficulty(self, value: Tuple[any, int], difficulty: str) -> None:
         selected, index = value
-        print(f'Selected difficulty: "{selected}" ({difficulty}) at index {index}')
         self.cond.set_difficulty(Difficulty(index + 1))
 
     def _change_hint(self, value: Tuple, enabled: bool) -> None:
@@ -69,14 +56,12 @@ class Menus:
             self.cond.set_cond_hint(True)
         else:
             self.cond.set_cond_hint(False)
-        print(f"Hint is available: {self.cond.hint}")
 
     def _change_timer(self, value: Tuple, enabled: bool) -> None:
         if enabled:
             self.cond.set_cond_timer(True)
         else:
             self.cond.set_cond_timer(False)
-        print(f"Timer: {self.cond.timer}")
 
     def _change_category(self, value: Tuple, enabled: str) -> None:
         selected, index = value
@@ -132,13 +117,10 @@ class Menus:
         elif enabled == "NOT_FRUITS":
             self.cond.delete_category(Categories.FRUITS)
 
-        print(f"Category set: {self.cond.categories}, {selected}")
-
     def _create_settings(self, cond):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
-        print(f"Category set: {self.cond.categories}")
         settings.add.selector(
             "",
             [("Легко", "EASY"), ("Средне", "MEDIUM"), ("Сложно", "HARD")],
@@ -219,38 +201,26 @@ class Menus:
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
         buttons = lambda x: game.add.button(
-            x, lambda: self.game_state.update_state(x), cursor=self.cursor
+            x, lambda: self.game_state.update_state(x), cursor=pgm.locals.CURSOR_HAND
         )
         for letter in ALPHABET:
             buttons(letter)
-        # # WIP
-        # [buttons(letter) for letter in alphabet]
-        # button = game.add.button(letter, game_state.update_state(letter))
-        # button.set_position(50.0, 800.0)
-        # button.set_position()
-        # b = game.add.button("тест", pgm.events.NONE)
-        # b.set_col_row_index(10, 100, 10)
-        # b.set_position(10.0,200.0)
 
         self._add_hint_button(game, self.cond.hint)
         game.add.button("Назад", post_back_to_main)
         return game
 
     def _add_hint_button(self, game, hint):
-        print(f"In add_but: {hint}")
         if hint == False:
             return
-
         game.add.button("Подсказка", post_hint)
         return
 
-    # TODO: доделать кнопки
     def _create_victory(self):
         victory = pgm.menu.Menu(
             title="Вы выиграли!", height=self._height, width=self._width
         )
         victory.add.button("Назад", post_back_to_main)
-        print("_create_victory(self)")
         return victory
 
     def _create_defeat(self):
@@ -258,5 +228,4 @@ class Menus:
             title="Вы проиграли!", height=self._height, width=self._width
         )
         defeat.add.button("Назад", post_back_to_main)
-        print("_create_defeat(self)")
         return defeat

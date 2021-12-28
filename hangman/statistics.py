@@ -16,7 +16,6 @@ class Statistics:
             self._played, self._won = self.read_stats()
         except (FileNotFoundError, JSONDecodeError, KeyError):
             self.write_stats()
-        print(f"Stats: played -- {self._played}, won -- {self._won}")
 
     def read_stats(self):
         """
@@ -36,7 +35,6 @@ class Statistics:
 
         stats = {"played": self._played, "won": self._won}
 
-        # TODO: возможно стоит ловить ошибки
         with open(self._filename, "w") as fstat:
             fstat.write(json.dumps(stats))
             fstat.flush()

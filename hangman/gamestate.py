@@ -1,15 +1,14 @@
 from os import path
 import pygame as pg
-from hangman.conditions import Categories
+from pygame.constants import AUDIO_ALLOW_ANY_CHANGE
+from hangman.conditions import Categories, ALL_CATEGORIES
 from hangman.events import *
 from random import choice
+from itertools import compress
 import os.path
 
 ALPHABET = list("АБВГДЕЖИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ")
 
-# dev: возможно, это не лучший способ хранения этой мапы.
-# Eсли есть идеи или время на подумать,
-# куда это можно перенести, то вперёд :)
 CATEGORY_FILENAME = {
     Categories.ANIMALS: "animals.txt",
     Categories.BIRDS: "birds.txt",
@@ -42,40 +41,31 @@ class GameState:
         """
         Выбирает рандомное слово для угадывания из переданных категорий
         """
-        print("change_word()")
-
         if len(categories) == 0:
-            # TODO: решить, что делать в таком случае
-            # (бросить ошибку? брать слова из всех категорий?)
-            print("err: change_word() - no categories specified!")
-            categories.append(Categories.ANIMALS)
+            categories = ALL_CATEGORIES
 
-        # выбрать случайную категорию переданного списка
-        # тут каст к листу, т.к. нет функций для выбора случайнго элемента из сета
+        # выбрать случайную категорию 
         random_category = choice(list(categories))
 
-        # открыть файл, соответствующий этой категории
-        # dev: подумать, стоит ли делать это тут? мб стоит загрузить все слова заранее?
+        # открыть словарь этой категории
         category_fname = CATEGORY_FILENAME[random_category]
         path_to_dict = os.path.join("dicts", category_fname)
 
-        # выбрать из файла случайное слово
+        # выбрать из словаря случайное слово
         dict: list = None
         with open(path_to_dict, "r", encoding="utf-8") as fdict:
             dict = fdict.read().splitlines()
 
         word = choice(dict)
-        print(f"dbg: change_word() - new word: {word}")
-        word = list(word)  # преобразовать слово в лист с буквами
+        print(f"[dbg] guessed word: {word}")
+        word = list(word) 
         self.word = word
         self._word_len = len(word)
 
     def get_hint(self):
-        print("get_hint")
-
         if self._hint == False and self._word_len > 1:
             for letter in self.word:
-                print(f"Hint letter: {letter}")
+                print(f"Hint: {letter}")
 
                 if self.game_alphabet.get(letter) == False:
                     self.update_state(letter)
@@ -87,25 +77,26 @@ class GameState:
     def update_state(self, letter: str):
         self.proc_letter = letter
 
-        print("game_state.update_state()")
-        print(f"{self.proc_letter} - LETTER")
-        # print(f"CURRENT ALP: \n {self.game_alphabet}")
+        print(f"Chosen letter: {self.proc_letter}")
 
         if self.game_alphabet.get(self.proc_letter) == False:
             self.game_alphabet.update({self.proc_letter: True})
 
-            print(f"UPD ALP:\n{self.game_alphabet}")
+            all_letters = list(self.game_alphabet.keys())
+            chosen = list(self.game_alphabet.values())
+            not_chosen = [not c for c in chosen]
+            left_letters = list(compress(all_letters, not_chosen))
+            print(f"Letters left: {''.join(left_letters)}")
 
             if self.word.count(letter) == 0:
                 self._lifes -= 1
             else:
                 self._word_len -= self.word.count(letter)
-
         else:
-            print("Letter already proc")
+            print("Letter {self.proc_letter} was already chosen!")
             return self.game_alphabet
 
-        print("word_len = {}, count = {}".format(self._word_len, self._lifes))
+        print("letters left = {}, lifes = {}".format(self._word_len, self._lifes))
         if self._word_len > 0 and self._lifes > 0:
             post_continue()
             return self.game_alphabet
