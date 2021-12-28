@@ -21,7 +21,6 @@ class Menus:
         self._height = height
         self._width = width
         self._surface = surface
-        self.cursor = pgm.locals.CURSOR_HAND
 
         self.game_state = game_state
         self.cond = conds
@@ -34,7 +33,6 @@ class Menus:
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
-        print("resize()")
         self._width, self._height = width, height
         self.main.resize(width, height)
         self.stats.resize(width, height)
@@ -47,12 +45,10 @@ class Menus:
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
         stat.add.button("Назад", pgm.events.BACK)
         stat.add.button("Сбросить", post_clear_stats)
-        print("Stats")
         return stat
 
     def _change_difficulty(self, value: Tuple[any, int], difficulty: str) -> None:
         selected, index = value
-        print(f'Selected difficulty: "{selected}" ({difficulty}) at index {index}')
         self.cond.set_difficulty(Difficulty(index + 1))
 
     def _change_hint(self, value: Tuple, enabled: bool) -> None:
@@ -60,14 +56,12 @@ class Menus:
             self.cond.set_cond_hint(True)
         else:
             self.cond.set_cond_hint(False)
-        print(f"Hint is available: {self.cond.hint}")
 
     def _change_timer(self, value: Tuple, enabled: bool) -> None:
         if enabled:
             self.cond.set_cond_timer(True)
         else:
             self.cond.set_cond_timer(False)
-        print(f"Timer: {self.cond.timer}")
 
     def _change_category(self, value: Tuple, enabled: str) -> None:
         selected, index = value
@@ -123,13 +117,10 @@ class Menus:
         elif enabled == "NOT_FRUITS":
             self.cond.delete_category(Categories.FRUITS)
 
-        print(f"Category set: {self.cond.categories}, {selected}")
-
     def _create_settings(self, cond):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
-        print(f"Category set: {self.cond.categories}")
         settings.add.selector(
             "",
             [("Легко", "EASY"), ("Средне", "MEDIUM"), ("Сложно", "HARD")],
@@ -210,7 +201,7 @@ class Menus:
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
         buttons = lambda x: game.add.button(
-            x, lambda: self.game_state.update_state(x), cursor=self.cursor
+            x, lambda: self.game_state.update_state(x), cursor=pgm.locals.CURSOR_HAND
         )
         for letter in ALPHABET:
             buttons(letter)
@@ -220,10 +211,8 @@ class Menus:
         return game
 
     def _add_hint_button(self, game, hint):
-        print(f"In add_but: {hint}")
         if hint == False:
             return
-
         game.add.button("Подсказка", post_hint)
         return
 
@@ -232,7 +221,6 @@ class Menus:
             title="Вы выиграли!", height=self._height, width=self._width
         )
         victory.add.button("Назад", pgm.events.PYGAME_QUIT)
-        print("_create_victory(self)")
         return victory
 
     def _create_defeat(self):
@@ -240,5 +228,4 @@ class Menus:
             title="Вы проиграли!", height=self._height, width=self._width
         )
         defeat.add.button("Назад", pgm.events.PYGAME_QUIT)
-        print("_create_defeat(self)")
         return defeat
