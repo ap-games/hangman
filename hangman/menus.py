@@ -207,7 +207,7 @@ class Menus:
             buttons(letter)
 
         self._add_hint_button(game, self.cond.hint)
-        game.add.button("Назад", pgm.events.BACK)
+        game.add.button("Назад", post_back_to_main)
         return game
 
     def _add_hint_button(self, game, hint):
@@ -220,12 +220,12 @@ class Menus:
         victory = pgm.menu.Menu(
             title="Вы выиграли!", height=self._height, width=self._width
         )
-        victory.add.button("Назад", pgm.events.PYGAME_QUIT)
+        victory.add.button("Назад", post_back_to_main)
         return victory
 
     def _create_defeat(self):
         defeat = pgm.menu.Menu(
             title="Вы проиграли!", height=self._height, width=self._width
         )
-        defeat.add.button("Назад", pgm.events.PYGAME_QUIT)
+        defeat.add.button("Назад", post_back_to_main)
         return defeat

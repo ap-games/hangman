@@ -31,6 +31,7 @@ class Game:
         self._menus = Menus(
             self._width, self._height, self._cond, self._game_state, self._surface
         )
+        self._current_menu = self._menus.main
         self._running = True
 
     def on_event(self, event):
@@ -54,16 +55,22 @@ class Game:
         if event.type == LOSE:
             print("[dbg] on_event(): LOSE")
             self._stats.played += 1
-            self._menus.defeat.mainloop(self._surface)
+            self._current_menu = self._menus.defeat
         if event.type == WIN:
             self._stats.played += 1
             self._stats.won += 1
             print("[dbg] on_event(): WIN")
-            self._menus.victory.mainloop(self._surface)
+            self._current_menu = self._menus.victory
         if event.type == START_GAME:
             print("[dbg] on_event(); START_GAME")
             self._game_state.change_word(self._cond.categories)
-            self._menus.game.mainloop(self._surface)
+            # dev: если нужно будет после смены слова пересоздать игровое меню
+            # то можно в классе Menus определить фукнцию, которая при вызове извне бы это делала
+            # и вызвать её здесь
+            self._current_menu = self._menus.game
+        if event.type == BACK_TO_MAIN:
+            print("[dbg] on_event(); BACK_FROM_*")
+            self._current_menu = self._menus.main
 
     def run(self):
         while self._running:
@@ -71,7 +78,8 @@ class Game:
             for event in events:
                 self.on_event(event)
 
-            if self._menus.main.is_enabled():
-                self._menus.main.update(events)
-                self._menus.main.draw(self._surface)
+            if self._running:
+                self._current_menu.update(events)
+                self._current_menu.draw(self._surface)
+
             pg.display.update()
