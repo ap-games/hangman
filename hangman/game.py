@@ -16,8 +16,8 @@ class Game:
     def __init__(self, width, height, stat_file):
         pg.init()
         pg.display.set_caption("Hangman")
-        self._width, self._height = width, height
-        self._surface = pg.display.set_mode((self._width, self._height), pg.RESIZABLE)
+        size = self._width, self._height = width, height
+        self._surface = pg.display.set_mode(size, pg.RESIZABLE)
 
         self._game_state = GameState()
         self._stats = Statistics(stat_file)
@@ -40,18 +40,19 @@ class Game:
     def on_event(self, event):
         if event.type == pg.QUIT:
             print("[dbg] on_event(): pg.QUIT")
-            self._stats.write_stats()
             self._running = False
 
         elif event.type == pg.VIDEORESIZE:
             print("[dbg] on_event(): pg.VIDEORESIZE")
-            self._surface = pg.display.set_mode((event.w, event.h), pg.RESIZABLE)
+            size = event.w, event.h
+            self._surface = pg.display.set_mode(size, pg.RESIZABLE)
             self._width, self._height = event.w, event.h
             self._menus.resize(event.w, event.h)
 
         elif event.type == CLEAR_STATS:
             print("[dbg] on_event(): CLEAR_STATS")
             self._stats.clear()
+            self._menus.update_stats(self._stats)
 
         elif event.type == HINT:
             self._menus.game_state.get_hint()
@@ -63,11 +64,13 @@ class Game:
         elif event.type == LOSE:
             print("[dbg] on_event(): LOSE")
             self._stats.played += 1
+            self._menus.update_stats(self._stats)
             self._current_menu = self._menus.defeat
 
         elif event.type == WIN:
             self._stats.played += 1
             self._stats.won += 1
+            self._menus.update_stats(self._stats)
             print("[dbg] on_event(): WIN")
             self._current_menu = self._menus.victory
 

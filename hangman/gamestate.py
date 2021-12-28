@@ -100,6 +100,6 @@ class GameState:
         elif self._word_len > 0 and self._lifes == 0:
             post_lose()
             return self.game_alphabet
-        elif self._word_len <= 0 and self._lifes >= 0 and self._lifes != 8:
+        elif self._word_len <= 0 and self._lifes > 0:
             post_win()
             return self.game_alphabet

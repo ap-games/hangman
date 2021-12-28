@@ -1,3 +1,4 @@
+from os import stat
 import pygame_menu as pgm
 from typing import Tuple
 
@@ -41,23 +42,34 @@ class Menus:
         self.defeat.resize(width, height)
         self.game.resize(width, height)
 
-    def _create_stats(self, stats):
+    def _create_stats(self, stats: Statistics):
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
 
-        winrate = stats.win_rate
-        played = stats.played
-        won = stats.won
-        lost = played - won
-
-        stat.add.label(f"Сыграно игр: {played}")
-        stat.add.label(f"Побед: {won}")
-        stat.add.label(f"Поражений: {lost}")
-        if winrate:
-            stat.add.label(f"Винрейт: {winrate}")
+        stat.add.label(f"Сыграно игр: {stats.played}", label_id="played_label")
+        stat.add.label(f"Побед: {stats.won}", label_id="won_label")
+        stat.add.label(f"Поражений: {stats.played - stats.won}", label_id="lost_label")
+        winrate_label = stat.add.label(f"Винрейт: {stats.win_rate}", label_id="winrate_label")
+        if stats.win_rate is None:
+            winrate_label.hide()
 
         stat.add.button("Назад", pgm.events.BACK)
         stat.add.button("Сбросить", post_clear_stats)
         return stat
+
+    def update_stats(self, stats: Statistics):
+        self.stats.get_widget("played_label").set_title(f"Сыграно игр: {stats.played}")
+        self.stats.get_widget("won_label").set_title(f"Побед: {stats.played}")
+        self.stats.get_widget("lost_label").set_title(f"Поражений: {stats.played}")
+
+        winrate_label = self.stats.get_widget("winrate_label")
+        winrate_label.set_title(f"Винрейт: {stats.win_rate}")
+
+        if stats.win_rate is None:
+            winrate_label.hide()
+        else:
+            winrate_label.show()
+            
+        return
 
     def _change_difficulty(self, value: Tuple[any, int], difficulty: str) -> None:
         selected, index = value

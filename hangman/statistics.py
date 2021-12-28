@@ -56,6 +56,7 @@ class Statistics:
     @played.setter
     def played(self, value: int):
         self._played = value
+        self.write_stats()
 
     @property
     def won(self) -> int:
@@ -64,6 +65,7 @@ class Statistics:
     @won.setter
     def won(self, value: int):
         self._won = value
+        self.write_stats()
 
     @property
     def lost(self) -> int:
