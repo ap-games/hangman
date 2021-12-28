@@ -7,8 +7,14 @@ from hangman.menus import Menus
 from hangman.gamestate import GameState
 from hangman.conditions import *
 
-ALL_CATEGORIES = {Categories.ANIMALS, Categories.BIRDS, Categories.CHEMISTRY, Categories.COUNTRIES, Categories.FOOD,
-                  Categories.FRUITS}
+ALL_CATEGORIES = {
+    Categories.ANIMALS,
+    Categories.BIRDS,
+    Categories.CHEMISTRY,
+    Categories.COUNTRIES,
+    Categories.FOOD,
+    Categories.FRUITS,
+}
 
 
 class Game:
@@ -31,7 +37,9 @@ class Game:
             cond_timer=False,
         )
         self._game_state = GameState()
-        self._menus = Menus(self._width, self._height, self._cond, self._game_state, self._surface)
+        self._menus = Menus(
+            self._width, self._height, self._cond, self._game_state, self._surface
+        )
         self._running = True
 
     def on_event(self, event):

@@ -27,7 +27,11 @@ class Categories(Enum):
 
 class Conditions:
     def __init__(
-        self, difficulty: Difficulty, categories: set[Categories], cond_timer: bool, cond_hint: bool
+        self,
+        difficulty: Difficulty,
+        categories: set[Categories],
+        cond_timer: bool,
+        cond_hint: bool,
     ):
         self._difficulty = difficulty
         self._categories = categories
