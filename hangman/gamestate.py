@@ -16,7 +16,7 @@ CATEGORY_FILENAME = {
     Categories.CHEMISTRY: "chemistry.txt",
     Categories.COUNTRIES: "countries.txt",
     Categories.FOOD: "food.txt",
-    Categories.FRUITS: "fruit.txt",
+    Categories.FRUITS: "fruits.txt",
 }
 
 
