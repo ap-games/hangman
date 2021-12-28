@@ -16,10 +16,10 @@ class Game:
     def __init__(self, width, height, stat_file):
         pg.init()
         pg.display.set_caption("Hangman")
-
         self._width, self._height = width, height
         self._surface = pg.display.set_mode((self._width, self._height), pg.RESIZABLE)
 
+        self._game_state = GameState()
         self._stats = Statistics(stat_file)
         self._cond = Conditions(
             difficulty=Difficulty.EASY,
@@ -27,9 +27,12 @@ class Game:
             cond_hint=False,
             cond_timer=False,
         )
-        self._game_state = GameState()
         self._menus = Menus(
-            self._width, self._height, self._cond, self._game_state, self._stats, self._surface
+            width=self._width,
+            height=self._height,
+            conds=self._cond,
+            game_state=self._game_state,
+            stats=self._stats,
         )
         self._current_menu = self._menus.main
         self._running = True
@@ -39,36 +42,44 @@ class Game:
             print("[dbg] on_event(): pg.QUIT")
             self._stats.write_stats()
             self._running = False
-        if event.type == pg.VIDEORESIZE:
+
+        elif event.type == pg.VIDEORESIZE:
             print("[dbg] on_event(): pg.VIDEORESIZE")
             self._surface = pg.display.set_mode((event.w, event.h), pg.RESIZABLE)
             self._width, self._height = event.w, event.h
             self._menus.resize(event.w, event.h)
-        if event.type == CLEAR_STATS:
+
+        elif event.type == CLEAR_STATS:
             print("[dbg] on_event(): CLEAR_STATS")
             self._stats.clear()
-        if event.type == HINT:
+
+        elif event.type == HINT:
             self._menus.game_state.get_hint()
             print("[dbg] on_event(): HINT")
-        if event.type == CONTINUE:
+
+        elif event.type == CONTINUE:
             print("[dbg] on_event(): CONTINUE")
-        if event.type == LOSE:
+
+        elif event.type == LOSE:
             print("[dbg] on_event(): LOSE")
             self._stats.played += 1
             self._current_menu = self._menus.defeat
-        if event.type == WIN:
+
+        elif event.type == WIN:
             self._stats.played += 1
             self._stats.won += 1
             print("[dbg] on_event(): WIN")
             self._current_menu = self._menus.victory
-        if event.type == START_GAME:
+
+        elif event.type == START_GAME:
             print("[dbg] on_event(); START_GAME")
             self._game_state.change_word(self._cond.categories)
             # dev: если нужно будет после смены слова пересоздать игровое меню
             # то можно в классе Menus определить фукнцию, которая при вызове извне бы это делала
             # и вызвать её здесь
             self._current_menu = self._menus.game
-        if event.type == BACK_TO_MAIN:
+
+        elif event.type == BACK_TO_MAIN:
             print("[dbg] on_event(); BACK_FROM_*")
             self._current_menu = self._menus.main
 

@@ -24,6 +24,7 @@ class Categories(Enum):
     FOOD = 5
     FRUITS = 6
 
+
 ALL_CATEGORIES = {
     Categories.ANIMALS,
     Categories.BIRDS,
@@ -32,6 +33,7 @@ ALL_CATEGORIES = {
     Categories.FOOD,
     Categories.FRUITS,
 }
+
 
 class Conditions:
     def __init__(

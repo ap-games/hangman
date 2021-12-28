@@ -1,8 +1,9 @@
 import pygame_menu as pgm
 from typing import Tuple
+
 from hangman.events import *
-from hangman.gamestate import *
-from hangman.conditions import *
+from hangman.gamestate import GameState, ALPHABET
+from hangman.conditions import Conditions, Categories, Difficulty
 from hangman.statistics import Statistics
 
 
@@ -18,21 +19,17 @@ class Menus:
         conds: Conditions,
         game_state: GameState,
         stats: Statistics,
-        surface: any,
     ):
         self._height = height
         self._width = width
-        self._surface = surface
 
-        self.game_state = game_state
         self.cond = conds
-        self.stats = stats
 
         self.victory = self._create_victory()
         self.defeat = self._create_defeat()
-        self.stats = self._create_stats()
-        self.game = self._create_game(self.game_state)
-        self.settings = self._create_settings(conds)
+        self.stats = self._create_stats(stats)
+        self.game = self._create_game(game_state)
+        self.settings = self._create_settings(conds, game_state)
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
@@ -44,14 +41,14 @@ class Menus:
         self.defeat.resize(width, height)
         self.game.resize(width, height)
 
-    def _create_stats(self):
+    def _create_stats(self, stats):
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
 
-        winrate = self.stats.win_rate
-        played = self.stats.played
-        won = self.stats.won
+        winrate = stats.win_rate
+        played = stats.played
+        won = stats.won
         lost = played - won
-        
+
         stat.add.label(f"Сыграно игр: {played}")
         stat.add.label(f"Побед: {won}")
         stat.add.label(f"Поражений: {lost}")
@@ -132,7 +129,7 @@ class Menus:
         elif enabled == "NOT_FRUITS":
             self.cond.delete_category(Categories.FRUITS)
 
-    def _create_settings(self, cond):
+    def _create_settings(self, cond, game_state):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
@@ -198,7 +195,7 @@ class Menus:
             selector_id="select_FRUITS",
         )
 
-        game = self._create_game(self.game_state)
+        game = self._create_game(game_state)
 
         settings.add.button("Продолжить", post_start_game)
         settings.add.button("Назад", pgm.events.BACK)
@@ -216,7 +213,7 @@ class Menus:
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
         buttons = lambda x: game.add.button(
-            x, lambda: self.game_state.update_state(x), cursor=pgm.locals.CURSOR_HAND
+            x, lambda: game_state.update_state(x), cursor=pgm.locals.CURSOR_HAND
         )
         for letter in ALPHABET:
             buttons(letter)

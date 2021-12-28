@@ -41,7 +41,7 @@ class GameState:
         if len(categories) == 0:
             categories = ALL_CATEGORIES
 
-        # выбрать случайную категорию 
+        # выбрать случайную категорию
         random_category = choice(list(categories))
 
         # открыть словарь этой категории
@@ -55,7 +55,7 @@ class GameState:
 
         word = choice(dict)
         print(f"[dbg] guessed word: {word}")
-        word = list(word) 
+        word = list(word)
         self.word = word
         self._word_len = len(word)
 
