@@ -227,9 +227,15 @@ class Menus:
         buttons = lambda x: game.add.button(
             x, lambda: game_state.update_state(x), cursor=pgm.locals.CURSOR_HAND
         )
-        for letter in ALPHABET:
-            buttons(letter)
-
+        frame1 = game.add.frame_h(40*12, 50, backgroud_color=(50, 50, 110), padding=0)
+        frame2 = game.add.frame_h(40 * 11, 50, backgroud_color=(50, 50, 110), padding=0)
+        frame3 = game.add.frame_h(40 * 9, 50, backgroud_color=(50, 50, 110), padding=0)
+        for i in range(12):
+            frame1.pack(buttons(ALPHABET[i]))
+        for i in range(12, 12 + 11):
+            frame2.pack(buttons(ALPHABET[i]))
+        for i in range(23, 23 + 9):
+            frame3.pack(buttons(ALPHABET[i]))
         self._add_hint_button(game, self.cond.hint)
         game.add.button("Назад", post_back_to_main)
         return game

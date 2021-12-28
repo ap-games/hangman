@@ -4,7 +4,7 @@ from random import choice
 from itertools import compress
 import os.path
 
-ALPHABET = list("АБВГДЕЖИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ")
+ALPHABET = list("ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ")
 
 CATEGORY_FILENAME = {
     Categories.ANIMALS: "animals.txt",
