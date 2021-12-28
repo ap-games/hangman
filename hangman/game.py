@@ -29,7 +29,7 @@ class Game:
         )
         self._game_state = GameState()
         self._menus = Menus(
-            self._width, self._height, self._cond, self._game_state, self._surface
+            self._width, self._height, self._cond, self._game_state, self._stats, self._surface
         )
         self._current_menu = self._menus.main
         self._running = True

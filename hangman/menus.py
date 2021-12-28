@@ -3,6 +3,7 @@ from typing import Tuple
 from hangman.events import *
 from hangman.gamestate import *
 from hangman.conditions import *
+from hangman.statistics import Statistics
 
 
 class Menus:
@@ -16,6 +17,7 @@ class Menus:
         height: int,
         conds: Conditions,
         game_state: GameState,
+        stats: Statistics,
         surface: any,
     ):
         self._height = height
@@ -24,6 +26,7 @@ class Menus:
 
         self.game_state = game_state
         self.cond = conds
+        self.stats = stats
 
         self.victory = self._create_victory()
         self.defeat = self._create_defeat()
@@ -43,6 +46,18 @@ class Menus:
 
     def _create_stats(self):
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
+
+        winrate = self.stats.win_rate
+        played = self.stats.played
+        won = self.stats.won
+        lost = played - won
+        
+        stat.add.label(f"Сыграно игр: {played}")
+        stat.add.label(f"Побед: {won}")
+        stat.add.label(f"Поражений: {lost}")
+        if winrate:
+            stat.add.label(f"Винрейт: {winrate}")
+
         stat.add.button("Назад", pgm.events.BACK)
         stat.add.button("Сбросить", post_clear_stats)
         return stat

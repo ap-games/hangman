@@ -70,5 +70,7 @@ class Statistics:
         return self._played - self._won
 
     @property
-    def win_rate(self) -> float:
-        return round(self._won / self._played, 2)
+    def win_rate(self) -> float or None:
+        if self._played != 0:
+            return round(self._won / self._played, 2)
+        return None

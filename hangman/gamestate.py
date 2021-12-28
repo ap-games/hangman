@@ -1,6 +1,3 @@
-from os import path
-import pygame as pg
-from pygame.constants import AUDIO_ALLOW_ANY_CHANGE
 from hangman.conditions import Categories, ALL_CATEGORIES
 from hangman.events import *
 from random import choice
