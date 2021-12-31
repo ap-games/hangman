@@ -55,8 +55,8 @@ class Game:
             self._menus.update_stats(self._stats)
 
         elif event.type == HINT:
-            self._menus.game_state.get_hint()
             print("[dbg] on_event(): HINT")
+            self._game_state.get_hint()
 
         elif event.type == CONTINUE:
             print("[dbg] on_event(): CONTINUE")
