@@ -1,4 +1,4 @@
-from hangman.conditions import Categories, ALL_CATEGORIES
+from hangman.conditions import Categories, ALL_CATEGORIES, Conditions
 from hangman.events import *
 from random import choice
 from itertools import compress
@@ -15,26 +15,36 @@ CATEGORY_FILENAME = {
     Categories.FRUITS: "fruits.txt",
 }
 
-
 class GameState:
     """
     Хранит текущее состояние игры
     """
 
     def __init__(self):
-        # Условие игры: 8 попыток
-        self._lifes: int = 8
+        self._max_lifes: int = 8
+        self._lifes: int = self._max_lifes
         self._hint = False
         self.proc_letter: str = "-"
         self.game_alphabet = self._create_alphabet()
         self.word: list(str) = ""
         self._word_len: int = 0
 
+    def new_game(self, conditions: Conditions):
+        """
+        Приводит GameState к исходному состоянию для начала новой игры.
+        """
+        # dev: в зависимости от condition.difficulty можно давать разное количество жизней
+        self._lifes = self._max_lifes
+        self._hint = conditions.has_hint
+        self.word = list(self._get_word(conditions.categories))
+        self._word_len = len(self.word)
+        self.game_alphabet = self._create_alphabet()
+
     def _create_alphabet(self):
         alphabet = dict.fromkeys(ALPHABET, False)
         return alphabet
 
-    def change_word(self, categories: set(Categories)) -> None:
+    def _get_word(self, categories: set(Categories)) -> str:
         """
         Выбирает рандомное слово для угадывания из переданных категорий
         """
@@ -55,9 +65,7 @@ class GameState:
 
         word = choice(dict)
         print(f"[dbg] guessed word: {word}")
-        word = list(word)
-        self.word = word
-        self._word_len = len(word)
+        return word
 
     def get_hint(self):
         if self._hint == False and self._word_len > 1:

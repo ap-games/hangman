@@ -76,7 +76,7 @@ class Game:
 
         elif event.type == START_GAME:
             print("[dbg] on_event(); START_GAME")
-            self._game_state.change_word(self._cond.categories)
+            self._game_state.new_game(self._cond)
             # dev: если нужно будет после смены слова пересоздать игровое меню
             # то можно в классе Menus определить фукнцию, которая при вызове извне бы это делала
             # и вызвать её здесь
