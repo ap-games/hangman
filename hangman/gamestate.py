@@ -93,13 +93,11 @@ class GameState:
     def get_hint(self):
         if not self._hint_used and self._word_len > 1:
             for letter in self.word:
-                print(f"Hint: {letter}")
-
                 if not self.game_alphabet.get(letter):
+                    print(f"Hint: {letter}")
                     self.process_letter(letter)
                     self._hint_used = True
-                    return self._hint_used
-        return self._hint_used
+                    return
 
     def process_letter(self, letter: str):
         self.proc_letter = letter
@@ -124,6 +122,8 @@ class GameState:
             return self.game_alphabet
 
         print("letters left = {}, lifes = {}".format(self._word_len, self._lifes))
+        if self._word_len == 1:
+            post_hide_hint()
         if self._word_len > 0 and self._lifes > 0:
             post_continue()
             return self.game_alphabet

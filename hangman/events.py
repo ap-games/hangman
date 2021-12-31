@@ -8,6 +8,7 @@ LOSE = event.custom_type()
 WIN = event.custom_type()
 START_GAME = event.custom_type()
 BACK_TO_MAIN = event.custom_type()
+HIDE_HINT = event.custom_type()
 
 
 def post_clear_stats():
@@ -36,3 +37,6 @@ def post_start_game():
 
 def post_back_to_main():
     event.post(event.Event(BACK_TO_MAIN))
+
+def post_hide_hint():
+    event.post(event.Event(HIDE_HINT))

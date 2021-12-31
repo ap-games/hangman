@@ -64,10 +64,17 @@ class Menus:
             timer.show()
         timer.set_title(str(game_state.time_left))
 
+        hint = self.game.get_widget("hint_button")
+        hint.hide()
+        if conditions.has_hint:
+            hint.show()
+
     def update_timer(self, time_left: datetime.timedelta):
         timer = self.game.get_widget("timer_label")
         timer.set_title(str(time_left.seconds))
 
+    def hide_hint(self):
+        self.game.get_widget("hint_button").hide()
 
     def update_stats(self, stats: Statistics):
         self.stats.get_widget("played_label").set_title(f"Сыграно игр: {stats.played}")
