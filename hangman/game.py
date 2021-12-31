@@ -24,8 +24,8 @@ class Game:
         self._cond = Conditions(
             difficulty=Difficulty.EASY,
             categories=set(ALL_CATEGORIES),
-            has_hint=False,
-            has_timer=False,
+            has_hint=True,
+            has_timer=True,
         )
         self._menus = Menus(
             width=self._width,
@@ -77,9 +77,7 @@ class Game:
         elif event.type == START_GAME:
             print("[dbg] on_event(); START_GAME")
             self._game_state.new_game(self._cond)
-            # dev: если нужно будет после смены слова пересоздать игровое меню
-            # то можно в классе Menus определить фукнцию, которая при вызове извне бы это делала
-            # и вызвать её здесь
+            self._menus.setup_game(self._cond, self._game_state)
             self._current_menu = self._menus.game
 
         elif event.type == BACK_TO_MAIN:
@@ -91,9 +89,12 @@ class Game:
             events = pg.event.get()
             for event in events:
                 self.on_event(event)
+            
+            if self._current_menu == self._menus.game and self._cond.has_timer:
+                self._game_state.update_timer()
+                self._menus.update_timer(self._game_state.time_left)
 
-            if self._running:
-                self._current_menu.update(events)
-                self._current_menu.draw(self._surface)
+            self._current_menu.update(events)
+            self._current_menu.draw(self._surface)
 
             pg.display.update()
