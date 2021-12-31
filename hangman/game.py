@@ -82,7 +82,7 @@ class Game:
             self._current_menu = self._menus.game
 
         elif event.type == BACK_TO_MAIN:
-            print("[dbg] on_event(); BACK_FROM_*")
+            print("[dbg] on_event(); BACK_TO_MAIN")
             self._current_menu = self._menus.main
 
         elif event.type == HIDE_HINT:

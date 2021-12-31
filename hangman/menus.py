@@ -1,12 +1,24 @@
-from os import name, stat
 import pygame_menu as pgm
 from typing import Tuple
+from enum import Enum
 import datetime
+
 
 from hangman.events import *
 from hangman.gamestate import GameState, ALPHABET
 from hangman.conditions import Conditions, Categories, Difficulty, ALL_CATEGORIES, CATEGORIES_NAMES
 from hangman.statistics import Statistics
+
+class Buttons(Enum):
+    HINT = "hint_button"
+
+class Labels(Enum):
+    PLAYED = "label_played"
+    WON = "label_won"
+    LOST = "label_lost"
+    WIN_RATE = "label_winrate"
+    TIMER = "label_timer"
+
 
 class Menus:
     """
@@ -42,10 +54,10 @@ class Menus:
     def _create_stats(self, stats: Statistics):
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
 
-        stat.add.label(f"Сыграно игр: {stats.played}", label_id="played_label")
-        stat.add.label(f"Побед: {stats.won}", label_id="won_label")
-        stat.add.label(f"Поражений: {stats.played - stats.won}", label_id="lost_label")
-        winrate_label = stat.add.label(f"Винрейт: {stats.win_rate}", label_id="winrate_label")
+        stat.add.label(f"Сыграно игр: {stats.played}", label_id=Labels.PLAYED.name)
+        stat.add.label(f"Побед: {stats.won}", label_id=Labels.WON.name)
+        stat.add.label(f"Поражений: {stats.played - stats.won}", label_id=Labels.LOST.name)
+        winrate_label = stat.add.label(f"Винрейт: {stats.win_rate}", label_id=Labels.WIN_RATE.name)
         if stats.win_rate is None:
             winrate_label.hide()
 
@@ -58,30 +70,30 @@ class Menus:
         Подготавливает игровое поле к началу новой игры
         """
 
-        timer = self.game.get_widget("timer_label")
+        timer = self.game.get_widget(Labels.TIMER.name)
         timer.hide()
         if conditions.has_timer:
             timer.show()
         timer.set_title(str(game_state.time_left))
 
-        hint = self.game.get_widget("hint_button")
+        hint = self.game.get_widget(Buttons.HINT.name)
         hint.hide()
         if conditions.has_hint:
             hint.show()
 
     def update_timer(self, time_left: datetime.timedelta):
-        timer = self.game.get_widget("timer_label")
+        timer = self.game.get_widget(Labels.TIMER.name)
         timer.set_title(str(time_left.seconds))
 
     def hide_hint(self):
-        self.game.get_widget("hint_button").hide()
+        self.game.get_widget(Buttons.HINT.name).hide()
 
     def update_stats(self, stats: Statistics):
-        self.stats.get_widget("played_label").set_title(f"Сыграно игр: {stats.played}")
-        self.stats.get_widget("won_label").set_title(f"Побед: {stats.won}")
-        self.stats.get_widget("lost_label").set_title(f"Поражений: {stats.played - stats.won}")
+        self.stats.get_widget(Labels.PLAYED.name).set_title(f"Сыграно игр: {stats.played}")
+        self.stats.get_widget(Labels.WON.name).set_title(f"Побед: {stats.won}")
+        self.stats.get_widget(Labels.LOST.name).set_title(f"Поражений: {stats.played - stats.won}")
 
-        winrate_label = self.stats.get_widget("winrate_label")
+        winrate_label = self.stats.get_widget(Labels.WIN_RATE.name)
         winrate_label.set_title(f"Винрейт: {stats.win_rate}")
 
         winrate_label.show()
@@ -169,8 +181,8 @@ class Menus:
     def _create_game(self, game_state):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
-        game.add.label("", label_id="timer_label")
-        game.add.button("Подсказка", post_hint, button_id="hint_button")
+        game.add.label("", label_id=Labels.TIMER.name)
+        game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.name)
 
         buttons = lambda x: game.add.button(
             x, lambda: game_state.process_letter(x), cursor=pgm.locals.CURSOR_HAND
