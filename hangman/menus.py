@@ -54,8 +54,8 @@ class Menus:
 
     def update_stats(self, stats: Statistics):
         self.stats.get_widget("played_label").set_title(f"Сыграно игр: {stats.played}")
-        self.stats.get_widget("won_label").set_title(f"Побед: {stats.played}")
-        self.stats.get_widget("lost_label").set_title(f"Поражений: {stats.played}")
+        self.stats.get_widget("won_label").set_title(f"Побед: {stats.won}")
+        self.stats.get_widget("lost_label").set_title(f"Поражений: {stats.played - stats.won}")
 
         winrate_label = self.stats.get_widget("winrate_label")
         winrate_label.set_title(f"Винрейт: {stats.win_rate}")
