@@ -122,6 +122,8 @@ class GameState:
             return self.game_alphabet
 
         print("letters left = {}, lifes = {}".format(self._word_len, self._lifes))
+        if self._word_len == 1:
+            post_hide_hint()
         if self._word_len > 0 and self._lifes > 0:
             post_continue()
             return self.game_alphabet
