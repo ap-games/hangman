@@ -39,7 +39,7 @@ class GameState:
         Выбирает рандомное слово для угадывания из переданных категорий
         """
         if len(categories) == 0:
-            categories = ALL_CATEGORIES
+            categories = set(ALL_CATEGORIES)
 
         # выбрать случайную категорию
         random_category = choice(list(categories))

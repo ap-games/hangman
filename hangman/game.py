@@ -23,9 +23,9 @@ class Game:
         self._stats = Statistics(stat_file)
         self._cond = Conditions(
             difficulty=Difficulty.EASY,
-            categories=ALL_CATEGORIES,
-            cond_hint=False,
-            cond_timer=False,
+            categories=set(ALL_CATEGORIES),
+            has_hint=False,
+            has_timer=False,
         )
         self._menus = Menus(
             width=self._width,
