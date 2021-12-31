@@ -4,7 +4,6 @@ import datetime
 class Difficulty(Enum):
     """
     Сложность игры
-    TODO: Обозначить, какие условия на каких сложностях
     """
     EASY = 1
     MEDIUM = 2

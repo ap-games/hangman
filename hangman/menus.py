@@ -16,18 +16,18 @@ class Menus:
     def __init__(self,
         width: int,
         height: int,
-        conds: Conditions,
+        conditions: Conditions,
         game_state: GameState,
         stats: Statistics,
     ):
         self._height = height
         self._width = width
-        self.conds = conds
+        self.conditions = conditions
         self.victory = self._create_victory()
         self.defeat = self._create_defeat()
         self.stats = self._create_stats(stats)
         self.game = self._create_game(game_state)
-        self.settings = self._create_settings(conds, game_state)
+        self.settings = self._create_settings(game_state)
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
@@ -90,13 +90,13 @@ class Menus:
 
     def _change_difficulty(self, value: Tuple[any, int], difficulty: str) -> None:
         _, index = value
-        self.conds.difficulty = Difficulty(index + 1)
+        self.conditions.difficulty = Difficulty(index + 1)
 
     def _change_hint(self, value: Tuple, enabled: bool) -> None:
-        self.conds.has_hint = enabled
+        self.conditions.has_hint = enabled
 
     def _change_timer(self, value: Tuple, enabled: bool) -> None:
-        self.conds.has_timer = enabled
+        self.conditions.has_timer = enabled
 
     def _change_category(self, value: Tuple, enabled: str) -> None:
         NOT_CATEGORIES_NAMES = [f"NOT_{category}" for category in CATEGORIES_NAMES]
@@ -105,17 +105,17 @@ class Menus:
         if enabled == "ALL":
             for category_name, category in name_to_cat.items():
                 self.settings.get_widget(f"select_{category_name}").set_value("вкл")
-                self.conds.add_category(category)
+                self.conditions.add_category(category)
         elif enabled == "NONE":
             for category_name, category in name_to_cat.items():
                 self.settings.get_widget(f"select_{category_name}").set_value("выкл")
-                self.conds.delete_category(category)
+                self.conditions.delete_category(category)
         elif enabled in CATEGORIES_NAMES:
-            self.conds.add_category(name_to_cat[enabled])
+            self.conditions.add_category(name_to_cat[enabled])
         elif enabled in NOT_CATEGORIES_NAMES:
-            self.conds.delete_category(name_to_cat[enabled[4:]])
+            self.conditions.delete_category(name_to_cat[enabled[4:]])
 
-    def _create_settings(self, cond, game_state):
+    def _create_settings(self, game_state):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
@@ -170,17 +170,13 @@ class Menus:
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
         game.add.label("", label_id="timer_label")
+        game.add.button("Подсказка", post_hint, button_id="hint_button")
 
         buttons = lambda x: game.add.button(
             x, lambda: game_state.process_letter(x), cursor=pgm.locals.CURSOR_HAND
         )
         for letter in ALPHABET:
             buttons(letter)
-
-        hint_button = game.add.button("Подсказка", post_hint, button_id="hint_button")
-        if not self.conds.has_hint:
-            hint_button.hide()
-
 
         game.add.button("Назад", post_back_to_main)
         return game
