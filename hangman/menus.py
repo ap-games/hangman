@@ -1,6 +1,7 @@
 from os import name, stat
 import pygame_menu as pgm
 from typing import Tuple
+import datetime
 
 from hangman.events import *
 from hangman.gamestate import GameState, ALPHABET
@@ -51,6 +52,22 @@ class Menus:
         stat.add.button("Назад", pgm.events.BACK)
         stat.add.button("Сбросить", post_clear_stats)
         return stat
+
+    def setup_game(self, conditions: Conditions, game_state: GameState):
+        """
+        Подготавливает игровое поле к началу новой игры
+        """
+
+        timer = self.game.get_widget("timer_label")
+        timer.hide()
+        if conditions.has_timer:
+            timer.show()
+        timer.set_title(str(game_state.time_left))
+
+    def update_timer(self, time_left: datetime.timedelta):
+        timer = self.game.get_widget("timer_label")
+        timer.set_title(str(time_left.seconds))
+
 
     def update_stats(self, stats: Statistics):
         self.stats.get_widget("played_label").set_title(f"Сыграно игр: {stats.played}")
@@ -145,8 +162,10 @@ class Menus:
     def _create_game(self, game_state):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
+        game.add.label("", label_id="timer_label")
+
         buttons = lambda x: game.add.button(
-            x, lambda: game_state.update_state(x), cursor=pgm.locals.CURSOR_HAND
+            x, lambda: game_state.process_letter(x), cursor=pgm.locals.CURSOR_HAND
         )
         for letter in ALPHABET:
             buttons(letter)
@@ -154,6 +173,7 @@ class Menus:
         hint_button = game.add.button("Подсказка", post_hint, button_id="hint_button")
         if not self.conds.has_hint:
             hint_button.hide()
+
 
         game.add.button("Назад", post_back_to_main)
         return game

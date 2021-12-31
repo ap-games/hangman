@@ -1,5 +1,5 @@
 from enum import Enum
-
+import datetime
 
 class Difficulty(Enum):
     """
@@ -40,6 +40,8 @@ class Conditions:
         has_timer: bool,
         has_hint: bool,
     ):
+        self.max_lifes = 8
+        self.time_limit = datetime.timedelta(seconds=60)
         self._difficulty = difficulty
         self._categories = categories
         self._has_timer = has_timer

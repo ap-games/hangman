@@ -2,6 +2,7 @@ from hangman.conditions import Categories, ALL_CATEGORIES, Conditions
 from hangman.events import *
 from random import choice
 from itertools import compress
+import datetime
 import os.path
 
 ALPHABET = list("АБВГДЕЖИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ")
@@ -21,24 +22,46 @@ class GameState:
     """
 
     def __init__(self):
-        self._max_lifes: int = 8
-        self._lifes: int = self._max_lifes
-        self._hint = False
+        self.time_left: datetime.timedelta = 0
+        self.word: list(str) = ""
         self.proc_letter: str = "-"
         self.game_alphabet = self._create_alphabet()
-        self.word: list(str) = ""
+
+        self._lifes: int = 0
         self._word_len: int = 0
+        self._hint_used: bool = False
+        self._last_measured_time: datetime.datetime = 0
 
     def new_game(self, conditions: Conditions):
         """
         Приводит GameState к исходному состоянию для начала новой игры.
         """
         # dev: в зависимости от condition.difficulty можно давать разное количество жизней
-        self._lifes = self._max_lifes
-        self._hint = conditions.has_hint
+        self._lifes = conditions.max_lifes
+        self._hint_used = not conditions.has_hint
         self.word = list(self._get_word(conditions.categories))
         self._word_len = len(self.word)
         self.game_alphabet = self._create_alphabet()
+
+        self._last_measured_time = datetime.datetime.now()
+        self.time_left = conditions.time_limit
+
+    def update_timer(self):
+        """
+        Обновляет таймер
+        Должно вызываться каждый игровой тик
+        """
+        # не должно вызываться, если condition.has_timer == False
+        # if not conditions.has_timer:
+        #     return
+
+        now = datetime.datetime.now()
+        time_passed = now - self._last_measured_time
+        self._last_measured_time = now
+        self.time_left -= time_passed
+        if self.time_left.total_seconds() <= 0:
+            self.time_left = datetime.timedelta(0) # чтобы не уходило в ноль
+            post_lose()
 
     def _create_alphabet(self):
         alphabet = dict.fromkeys(ALPHABET, False)
@@ -68,18 +91,17 @@ class GameState:
         return word
 
     def get_hint(self):
-        if self._hint == False and self._word_len > 1:
+        if not self._hint_used and self._word_len > 1:
             for letter in self.word:
                 print(f"Hint: {letter}")
 
-                if self.game_alphabet.get(letter) == False:
-                    self.update_state(letter)
-                    self._hint = True
-                    return self._hint
+                if not self.game_alphabet.get(letter):
+                    self.process_letter(letter)
+                    self._hint_used = True
+                    return self._hint_used
+        return self._hint_used
 
-        return self._hint
-
-    def update_state(self, letter: str):
+    def process_letter(self, letter: str):
         self.proc_letter = letter
 
         print(f"Chosen letter: {self.proc_letter}")
