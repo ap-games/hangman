@@ -23,12 +23,12 @@ class GameState:
 
     def __init__(self):
         self.time_left: datetime.timedelta = 0
-        self.word: list(str) = ""
+        self.word: str = ""
         self.proc_letter: str = "-"
-        self.game_alphabet = self._create_alphabet()
+        self.processed_letters: dict(str, bool) = dict.fromkeys(ALPHABET, False)
 
         self._lifes: int = 0
-        self._word_len: int = 0
+        self._left_to_guess: int = 0
         self._hint_used: bool = False
         self._last_measured_time: datetime.datetime = 0
 
@@ -39,9 +39,9 @@ class GameState:
         # dev: в зависимости от condition.difficulty можно давать разное количество жизней
         self._lifes = conditions.max_lifes
         self._hint_used = not conditions.has_hint
-        self.word = list(self._get_word(conditions.categories))
-        self._word_len = len(self.word)
-        self.game_alphabet = self._create_alphabet()
+        self.word = self._get_word(conditions.categories)
+        self._left_to_guess = len(self.word)
+        self.processed_letters = dict.fromkeys(ALPHABET, False)
 
         self._last_measured_time = datetime.datetime.now()
         self.time_left = conditions.time_limit
@@ -62,10 +62,6 @@ class GameState:
         if self.time_left.total_seconds() <= 0:
             self.time_left = datetime.timedelta(0) # чтобы не уходило в ноль
             post_lose()
-
-    def _create_alphabet(self):
-        alphabet = dict.fromkeys(ALPHABET, False)
-        return alphabet
 
     def _get_word(self, categories: set(Categories)) -> str:
         """
@@ -91,45 +87,43 @@ class GameState:
         return word
 
     def get_hint(self):
-        if not self._hint_used and self._word_len > 1:
+        if not self._hint_used and self._left_to_guess > 1:
             for letter in self.word:
-                if not self.game_alphabet.get(letter):
+                if not self.processed_letters.get(letter):
                     print(f"Hint: {letter}")
                     self.process_letter(letter)
                     self._hint_used = True
                     return
 
     def process_letter(self, letter: str):
-        self.proc_letter = letter
+        if self.processed_letters[letter]:
+            print(f"Letter {letter} was already chosen!")
+            return
 
-        print(f"Chosen letter: {self.proc_letter}")
+        print(f"Chosen letter: {letter}")
 
-        if self.game_alphabet.get(self.proc_letter) == False:
-            self.game_alphabet.update({self.proc_letter: True})
+        self.processed_letters[letter] = True
 
-            all_letters = list(self.game_alphabet.keys())
-            chosen = list(self.game_alphabet.values())
-            not_chosen = [not c for c in chosen]
-            left_letters = list(compress(all_letters, not_chosen))
-            print(f"Letters left: {''.join(left_letters)}")
+        # выводит список букв, которые можно выбрать
+        all_letters = list(self.processed_letters.keys())
+        chosen = list(self.processed_letters.values())
+        not_chosen = [not c for c in chosen]
+        left_letters = list(compress(all_letters, not_chosen))
+        print(f"Letters left: {''.join(left_letters)}")
 
-            if self.word.count(letter) == 0:
-                self._lifes -= 1
-            else:
-                self._word_len -= self.word.count(letter)
+        if letter not in self.word:
+            self._lifes -= 1
         else:
-            print("Letter {self.proc_letter} was already chosen!")
-            return self.game_alphabet
+            self._left_to_guess -= self.word.count(letter)
 
-        print("letters left = {}, lifes = {}".format(self._word_len, self._lifes))
-        if self._word_len == 1:
+        if self._left_to_guess == 1:
             post_hide_hint()
-        if self._word_len > 0 and self._lifes > 0:
+        
+        if self._left_to_guess > 0 and self._lifes > 0:
             post_continue()
-            return self.game_alphabet
-        elif self._word_len > 0 and self._lifes == 0:
+        elif self._lifes == 0:
             post_lose()
-            return self.game_alphabet
-        elif self._word_len <= 0 and self._lifes > 0:
+        elif self._left_to_guess == 0: # and self._lifes == 0
             post_win()
-            return self.game_alphabet
+
+        print("Letters left = {}; Lifes = {}".format(self._left_to_guess, self._lifes))
