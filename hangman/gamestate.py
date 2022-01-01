@@ -16,6 +16,7 @@ CATEGORY_FILENAME = {
     Categories.FRUITS: "fruits.txt",
 }
 
+
 class GameState:
     """
     Хранит текущее состояние игры
@@ -60,7 +61,7 @@ class GameState:
         self._last_measured_time = now
         self.time_left -= time_passed
         if self.time_left.total_seconds() <= 0:
-            self.time_left = datetime.timedelta(0) # чтобы не уходило в ноль
+            self.time_left = datetime.timedelta(0)  # чтобы не уходило в ноль
             post_lose()
 
     def _get_word(self, categories: set(Categories)) -> str:
@@ -118,12 +119,12 @@ class GameState:
 
         if self._left_to_guess == 1:
             post_hide_hint()
-        
+
         if self._left_to_guess > 0 and self._lifes > 0:
             post_continue()
         elif self._lifes == 0:
             post_lose()
-        elif self._left_to_guess == 0: # and self._lifes == 0
+        elif self._left_to_guess == 0:  # and self._lifes == 0
             post_win()
 
         print("Letters left = {}; Lifes = {}".format(self._left_to_guess, self._lifes))

@@ -6,11 +6,19 @@ import datetime
 
 from hangman.events import *
 from hangman.gamestate import GameState, ALPHABET
-from hangman.conditions import ALL_CATEGORIES, NAME_TO_CAT, Conditions, Categories, Difficulties, Difficulty
+from hangman.conditions import (
+    ALL_CATEGORIES,
+    NAME_TO_CAT,
+    Conditions,
+    Categories,
+    Difficulties,
+)
 from hangman.statistics import Statistics
+
 
 class Buttons(Enum):
     HINT = "hint_button"
+
 
 class Labels(Enum):
     PLAYED = "label_played"
@@ -25,7 +33,8 @@ class Menus:
     Создает и хранит в себе игровые меню
     """
 
-    def __init__(self,
+    def __init__(
+        self,
         width: int,
         height: int,
         conditions: Conditions,
@@ -75,39 +84,48 @@ class Menus:
         self.game.get_widget(Buttons.HINT.value).hide()
 
     def update_stats(self, stats: Statistics):
-        self.stats.get_widget(Labels.PLAYED.value).set_title(f"Сыграно игр: {stats.played}")
-        self.stats.get_widget(Labels.WON.value).set_title(f"Побед: {stats.won}")
-        self.stats.get_widget(Labels.LOST.value).set_title(f"Поражений: {stats.played - stats.won}")
-
+        played_label = self.stats.get_widget(Labels.PLAYED.value)
+        won_label = self.stats.get_widget(Labels.WON.value)
+        lost_label = self.stats.get_widget(Labels.LOST.value)
         winrate_label = self.stats.get_widget(Labels.WIN_RATE.value)
+
+        played_label.set_title(f"Сыграно игр: {stats.played}")
+        lost_label.set_title(f"Поражений: {stats.played - stats.won}")
+        won_label.set_title(f"Побед: {stats.won}")
         winrate_label.set_title(f"Винрейт: {stats.win_rate}")
 
         winrate_label.show()
         if stats.win_rate is None:
             winrate_label.hide()
 
-
     def _create_stats(self, stats: Statistics):
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
 
         stat.add.label(f"Сыграно игр: {stats.played}", label_id=Labels.PLAYED.value)
         stat.add.label(f"Побед: {stats.won}", label_id=Labels.WON.value)
-        stat.add.label(f"Поражений: {stats.played - stats.won}", label_id=Labels.LOST.value)
-        winrate_label = stat.add.label(f"Винрейт: {stats.win_rate}", label_id=Labels.WIN_RATE.value)
+        stat.add.label(
+            f"Поражений: {stats.played - stats.won}", label_id=Labels.LOST.value
+        )
+        winrate_label = stat.add.label(
+            f"Винрейт: {stats.win_rate}", label_id=Labels.WIN_RATE.value
+        )
         if stats.win_rate is None:
             winrate_label.hide()
 
         stat.add.button("Назад", pgm.events.BACK)
         stat.add.button("Сбросить", post_clear_stats)
         return stat
-    
+
     def _create_settings(self, game_state):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
         settings.add.selector(
             "",
-            [(difficulty["translation"], name) for (name, difficulty) in Difficulties.items()],
+            [
+                (difficulty["translation"], name)
+                for (name, difficulty) in Difficulties.items()
+            ],
             onchange=self._change_difficulty,
             selector_id="select_difficulty",
         )

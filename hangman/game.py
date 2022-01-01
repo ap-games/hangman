@@ -94,7 +94,7 @@ class Game:
             events = pg.event.get()
             for event in events:
                 self.on_event(event)
-            
+
             if self._current_menu == self._menus.game and self._conditions.has_timer:
                 self._game_state.update_timer()
                 self._menus.update_timer(self._game_state.time_left)
