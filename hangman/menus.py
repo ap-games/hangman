@@ -18,6 +18,7 @@ from hangman.statistics import Statistics
 
 class Buttons(Enum):
     HINT = "hint_button"
+    PAUSE = "pause_button"
 
 
 class Labels(Enum):
@@ -47,6 +48,7 @@ class Menus:
         self.victory = self._create_victory()
         self.defeat = self._create_defeat()
         self.stats = self._create_stats(stats)
+        self.pause = self._create_pause()
         self.game = self._create_game(game_state)
         self.settings = self._create_settings(game_state)
         self.main = self._create_main(self.settings, self.stats)
@@ -169,9 +171,18 @@ class Menus:
         main.add.button("Выйти", pgm.events.EXIT)
         return main
 
+    def _create_pause(self):
+        pause = pgm.menu.Menu(title="Пауза", height=self._height, width=self._width)
+
+        pause.add.button("Продолжить", post_continue)
+        pause.add.button("Закончить игру", post_back_to_main)
+
+        return pause
+
     def _create_game(self, game_state):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
+        game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
         game.add.label("", label_id=Labels.TIMER.value)
         game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
 
