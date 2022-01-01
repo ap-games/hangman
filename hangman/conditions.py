@@ -1,18 +1,50 @@
 from enum import Enum
+from typing import TypedDict
 import datetime
 
-class Difficulty(Enum):
+
+class Difficulty(TypedDict):
     """
     Сложность игры
     """
-    EASY = 1
-    MEDIUM = 2
-    HARD = 3
+
+    name: str
+    translation: str
+    max_lifes: int
+    time_limit: datetime.timedelta
+    letters_to_guess: range
+
+
+Difficulties = {
+    "EASY": Difficulty(
+        name="EASY",
+        translation="Легко",
+        max_lifes=8,
+        time_limit=datetime.timedelta(minutes=3),
+        letters_to_guess=range(3, 5),
+    ),
+    "MEDIUM": Difficulty(
+        name="MEDIUM",
+        translation="Средне",
+        max_lifes=6,
+        time_limit=datetime.timedelta(minutes=2, seconds=30),
+        letters_to_guess=range(5, 7),
+    ),
+    "HARD": Difficulty(
+        name="HARD",
+        translation="Сложно",
+        max_lifes=4,
+        time_limit=datetime.timedelta(minutes=2),
+        letters_to_guess=range(7, 10),
+    ),
+}
+
 
 class Categories(Enum):
     """
     Категории слов для угадывания
     """
+
     ANIMALS = "Животные"
     BIRDS = "Птицы"
     CHEMISTRY = "Химия"
@@ -20,8 +52,10 @@ class Categories(Enum):
     FOOD = "Еда"
     FRUITS = "Фрукты"
 
+
 ALL_CATEGORIES = [category for category in Categories]
 NAME_TO_CAT = {category.name: category for category in Categories}
+
 
 class Conditions:
     def __init__(
@@ -53,10 +87,10 @@ class Conditions:
     @property
     def difficulty(self) -> Difficulty:
         return self._difficulty
-    
+
     @difficulty.setter
     def difficulty(self, difficulty: Difficulty):
-        print("[dbg] difficulty set to ", difficulty)
+        print("[dbg] difficulty set to ", difficulty["name"])
         self._difficulty = difficulty
 
     @property

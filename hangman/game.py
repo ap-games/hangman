@@ -5,7 +5,7 @@ from hangman.events import *
 from hangman.statistics import Statistics
 from hangman.menus import Menus
 from hangman.gamestate import GameState
-from hangman.conditions import Categories, Conditions, Difficulty, ALL_CATEGORIES
+from hangman.conditions import Conditions, Difficulties, ALL_CATEGORIES
 
 
 class Game:
@@ -22,7 +22,7 @@ class Game:
         self._game_state = GameState()
         self._stats = Statistics(stat_file)
         self._conditions = Conditions(
-            difficulty=Difficulty.EASY,
+            difficulty=Difficulties["EASY"],
             categories=set(ALL_CATEGORIES),
             has_hint=True,
             has_timer=True,
