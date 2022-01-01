@@ -1,33 +1,54 @@
-from os import name, stat
 import pygame_menu as pgm
 from typing import Tuple
+from enum import Enum
 import datetime
+
 
 from hangman.events import *
 from hangman.gamestate import GameState, ALPHABET
-from hangman.conditions import Conditions, Categories, Difficulty, ALL_CATEGORIES, CATEGORIES_NAMES
+from hangman.conditions import (
+    ALL_CATEGORIES,
+    NAME_TO_CAT,
+    Conditions,
+    Categories,
+    Difficulties,
+)
 from hangman.statistics import Statistics
+
+
+class Buttons(Enum):
+    HINT = "hint_button"
+
+
+class Labels(Enum):
+    PLAYED = "label_played"
+    WON = "label_won"
+    LOST = "label_lost"
+    WIN_RATE = "label_winrate"
+    TIMER = "label_timer"
+
 
 class Menus:
     """
     Создает и хранит в себе игровые меню
     """
 
-    def __init__(self,
+    def __init__(
+        self,
         width: int,
         height: int,
-        conds: Conditions,
+        conditions: Conditions,
         game_state: GameState,
         stats: Statistics,
     ):
         self._height = height
         self._width = width
-        self.conds = conds
+        self.conditions = conditions
         self.victory = self._create_victory()
         self.defeat = self._create_defeat()
         self.stats = self._create_stats(stats)
         self.game = self._create_game(game_state)
-        self.settings = self._create_settings(conds, game_state)
+        self.settings = self._create_settings(game_state)
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
@@ -39,13 +60,55 @@ class Menus:
         self.defeat.resize(width, height)
         self.game.resize(width, height)
 
+    def setup_game(self, conditions: Conditions, game_state: GameState):
+        """
+        Подготавливает игровое поле к началу новой игры
+        """
+
+        timer = self.game.get_widget(Labels.TIMER.value)
+        timer.hide()
+        if conditions.has_timer:
+            timer.show()
+        timer.set_title(str(game_state.time_left))
+
+        hint = self.game.get_widget(Buttons.HINT.value)
+        hint.hide()
+        if conditions.has_hint:
+            hint.show()
+
+    def update_timer(self, time_left: datetime.timedelta):
+        timer = self.game.get_widget(Labels.TIMER.value)
+        timer.set_title(str(time_left.seconds))
+
+    def hide_hint(self):
+        self.game.get_widget(Buttons.HINT.value).hide()
+
+    def update_stats(self, stats: Statistics):
+        played_label = self.stats.get_widget(Labels.PLAYED.value)
+        won_label = self.stats.get_widget(Labels.WON.value)
+        lost_label = self.stats.get_widget(Labels.LOST.value)
+        winrate_label = self.stats.get_widget(Labels.WIN_RATE.value)
+
+        played_label.set_title(f"Сыграно игр: {stats.played}")
+        lost_label.set_title(f"Поражений: {stats.played - stats.won}")
+        won_label.set_title(f"Побед: {stats.won}")
+        winrate_label.set_title(f"Винрейт: {stats.win_rate}")
+
+        winrate_label.show()
+        if stats.win_rate is None:
+            winrate_label.hide()
+
     def _create_stats(self, stats: Statistics):
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
 
-        stat.add.label(f"Сыграно игр: {stats.played}", label_id="played_label")
-        stat.add.label(f"Побед: {stats.won}", label_id="won_label")
-        stat.add.label(f"Поражений: {stats.played - stats.won}", label_id="lost_label")
-        winrate_label = stat.add.label(f"Винрейт: {stats.win_rate}", label_id="winrate_label")
+        stat.add.label(f"Сыграно игр: {stats.played}", label_id=Labels.PLAYED.value)
+        stat.add.label(f"Побед: {stats.won}", label_id=Labels.WON.value)
+        stat.add.label(
+            f"Поражений: {stats.played - stats.won}", label_id=Labels.LOST.value
+        )
+        winrate_label = stat.add.label(
+            f"Винрейт: {stats.win_rate}", label_id=Labels.WIN_RATE.value
+        )
         if stats.win_rate is None:
             winrate_label.hide()
 
@@ -53,75 +116,16 @@ class Menus:
         stat.add.button("Сбросить", post_clear_stats)
         return stat
 
-    def setup_game(self, conditions: Conditions, game_state: GameState):
-        """
-        Подготавливает игровое поле к началу новой игры
-        """
-
-        timer = self.game.get_widget("timer_label")
-        timer.hide()
-        if conditions.has_timer:
-            timer.show()
-        timer.set_title(str(game_state.time_left))
-
-        hint = self.game.get_widget("hint_button")
-        hint.hide()
-        if conditions.has_hint:
-            hint.show()
-
-    def update_timer(self, time_left: datetime.timedelta):
-        timer = self.game.get_widget("timer_label")
-        timer.set_title(str(time_left.seconds))
-
-    def hide_hint(self):
-        self.game.get_widget("hint_button").hide()
-
-    def update_stats(self, stats: Statistics):
-        self.stats.get_widget("played_label").set_title(f"Сыграно игр: {stats.played}")
-        self.stats.get_widget("won_label").set_title(f"Побед: {stats.won}")
-        self.stats.get_widget("lost_label").set_title(f"Поражений: {stats.played - stats.won}")
-
-        winrate_label = self.stats.get_widget("winrate_label")
-        winrate_label.set_title(f"Винрейт: {stats.win_rate}")
-
-        winrate_label.show()
-        if stats.win_rate is None:
-            winrate_label.hide()
-
-    def _change_difficulty(self, value: Tuple[any, int], difficulty: str) -> None:
-        _, index = value
-        self.conds.difficulty = Difficulty(index + 1)
-
-    def _change_hint(self, value: Tuple, enabled: bool) -> None:
-        self.conds.has_hint = enabled
-
-    def _change_timer(self, value: Tuple, enabled: bool) -> None:
-        self.conds.has_timer = enabled
-
-    def _change_category(self, value: Tuple, enabled: str) -> None:
-        NOT_CATEGORIES_NAMES = [f"NOT_{category}" for category in CATEGORIES_NAMES]
-        name_to_cat = dict(zip(CATEGORIES_NAMES, ALL_CATEGORIES))
-
-        if enabled == "ALL":
-            for category_name, category in name_to_cat.items():
-                self.settings.get_widget(f"select_{category_name}").set_value("вкл")
-                self.conds.add_category(category)
-        elif enabled == "NONE":
-            for category_name, category in name_to_cat.items():
-                self.settings.get_widget(f"select_{category_name}").set_value("выкл")
-                self.conds.delete_category(category)
-        elif enabled in CATEGORIES_NAMES:
-            self.conds.add_category(name_to_cat[enabled])
-        elif enabled in NOT_CATEGORIES_NAMES:
-            self.conds.delete_category(name_to_cat[enabled[4:]])
-
-    def _create_settings(self, cond, game_state):
+    def _create_settings(self, game_state):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
         settings.add.selector(
             "",
-            [("Легко", "EASY"), ("Средне", "MEDIUM"), ("Сложно", "HARD")],
+            [
+                (difficulty["translation"], name)
+                for (name, difficulty) in Difficulties.items()
+            ],
             onchange=self._change_difficulty,
             selector_id="select_difficulty",
         )
@@ -145,13 +149,12 @@ class Menus:
             selector_id="select_ALL",
         )
 
-        RUSSIAN_NAMES = ["Животные", "Птицы", "Химия", "Страны", "Еда", "Фрукты"]
-        for russian_name, category in zip(RUSSIAN_NAMES, CATEGORIES_NAMES):
+        for category in Categories:
             settings.add.selector(
-                russian_name,
-                items=[("вкл", category), ("выкл", f"NOT_{category}")],
+                category.value,
+                items=[("вкл", category.name), ("выкл", f"NOT_{category.name}")],
                 onchange=self._change_category,
-                selector_id=f"select_{category}",
+                selector_id=f"select_{category.name}",
             )
 
         game = self._create_game(game_state)
@@ -169,18 +172,14 @@ class Menus:
     def _create_game(self, game_state):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
-        game.add.label("", label_id="timer_label")
+        game.add.label("", label_id=Labels.TIMER.value)
+        game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
 
         buttons = lambda x: game.add.button(
             x, lambda: game_state.process_letter(x), cursor=pgm.locals.CURSOR_HAND
         )
         for letter in ALPHABET:
             buttons(letter)
-
-        hint_button = game.add.button("Подсказка", post_hint, button_id="hint_button")
-        if not self.conds.has_hint:
-            hint_button.hide()
-
 
         game.add.button("Назад", post_back_to_main)
         return game
@@ -198,3 +197,27 @@ class Menus:
         )
         defeat.add.button("Назад", post_back_to_main)
         return defeat
+
+    # --- onchange methods ---
+    def _change_difficulty(self, _: Tuple[any, int], difficulty: str) -> None:
+        self.conditions.difficulty = Difficulties[difficulty]
+
+    def _change_hint(self, _: Tuple, has_hint: bool) -> None:
+        self.conditions.has_hint = has_hint
+
+    def _change_timer(self, _: Tuple, has_timer: bool) -> None:
+        self.conditions.has_timer = has_timer
+
+    def _change_category(self, _: Tuple, category_name: str) -> None:
+        if category_name == "ALL":
+            for category in Categories:
+                self.settings.get_widget(f"select_{category.name}").set_value("вкл")
+                self.conditions.add_category(category)
+        elif category_name == "NONE":
+            for category in Categories:
+                self.settings.get_widget(f"select_{category.name}").set_value("выкл")
+                self.conditions.delete_category(category)
+        elif NAME_TO_CAT.get(category_name) in ALL_CATEGORIES:
+            self.conditions.add_category(NAME_TO_CAT[category_name])
+        elif NAME_TO_CAT.get(category_name[4:]) in ALL_CATEGORIES:
+            self.conditions.delete_category(NAME_TO_CAT[category_name[4:]])

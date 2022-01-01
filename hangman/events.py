@@ -38,5 +38,6 @@ def post_start_game():
 def post_back_to_main():
     event.post(event.Event(BACK_TO_MAIN))
 
+
 def post_hide_hint():
     event.post(event.Event(HIDE_HINT))

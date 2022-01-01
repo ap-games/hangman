@@ -5,7 +5,7 @@ from hangman.events import *
 from hangman.statistics import Statistics
 from hangman.menus import Menus
 from hangman.gamestate import GameState
-from hangman.conditions import *
+from hangman.conditions import Conditions, Difficulties, ALL_CATEGORIES
 
 
 class Game:
@@ -21,8 +21,8 @@ class Game:
 
         self._game_state = GameState()
         self._stats = Statistics(stat_file)
-        self._cond = Conditions(
-            difficulty=Difficulty.EASY,
+        self._conditions = Conditions(
+            difficulty=Difficulties["EASY"],
             categories=set(ALL_CATEGORIES),
             has_hint=True,
             has_timer=True,
@@ -30,7 +30,7 @@ class Game:
         self._menus = Menus(
             width=self._width,
             height=self._height,
-            conds=self._cond,
+            conditions=self._conditions,
             game_state=self._game_state,
             stats=self._stats,
         )
@@ -77,12 +77,12 @@ class Game:
 
         elif event.type == START_GAME:
             print("[dbg] on_event(); START_GAME")
-            self._game_state.new_game(self._cond)
-            self._menus.setup_game(self._cond, self._game_state)
+            self._game_state.new_game(self._conditions)
+            self._menus.setup_game(self._conditions, self._game_state)
             self._current_menu = self._menus.game
 
         elif event.type == BACK_TO_MAIN:
-            print("[dbg] on_event(); BACK_FROM_*")
+            print("[dbg] on_event(); BACK_TO_MAIN")
             self._current_menu = self._menus.main
 
         elif event.type == HIDE_HINT:
@@ -94,8 +94,8 @@ class Game:
             events = pg.event.get()
             for event in events:
                 self.on_event(event)
-            
-            if self._current_menu == self._menus.game and self._cond.has_timer:
+
+            if self._current_menu == self._menus.game and self._conditions.has_timer:
                 self._game_state.update_timer()
                 self._menus.update_timer(self._game_state.time_left)
 
