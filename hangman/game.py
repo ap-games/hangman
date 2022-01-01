@@ -90,6 +90,8 @@ class Game:
             self._menus.hide_hint()
 
     def run(self):
+        clock = pg.time.Clock()
+
         while self._running:
             events = pg.event.get()
             for event in events:
@@ -103,3 +105,4 @@ class Game:
             self._current_menu.draw(self._surface)
 
             pg.display.update()
+            clock.tick(30)
