@@ -5,7 +5,7 @@ from hangman.events import *
 from hangman.statistics import Statistics
 from hangman.menus import Menus
 from hangman.gamestate import GameState
-from hangman.conditions import *
+from hangman.conditions import Categories, Conditions, Difficulty, ALL_CATEGORIES
 
 
 class Game:

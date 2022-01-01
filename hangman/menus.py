@@ -6,7 +6,7 @@ import datetime
 
 from hangman.events import *
 from hangman.gamestate import GameState, ALPHABET
-from hangman.conditions import Conditions, Categories, Difficulty, ALL_CATEGORIES, CATEGORIES_NAMES
+from hangman.conditions import ALL_CATEGORIES, NAME_TO_CAT, Conditions, Categories, Difficulty
 from hangman.statistics import Statistics
 
 class Buttons(Enum):
@@ -111,21 +111,18 @@ class Menus:
         self.conditions.has_timer = enabled
 
     def _change_category(self, value: Tuple, enabled: str) -> None:
-        NOT_CATEGORIES_NAMES = [f"NOT_{category}" for category in CATEGORIES_NAMES]
-        name_to_cat = dict(zip(CATEGORIES_NAMES, ALL_CATEGORIES))
-
         if enabled == "ALL":
-            for category_name, category in name_to_cat.items():
-                self.settings.get_widget(f"select_{category_name}").set_value("вкл")
+            for category in Categories:
+                self.settings.get_widget(f"select_{category.name}").set_value("вкл")
                 self.conditions.add_category(category)
         elif enabled == "NONE":
-            for category_name, category in name_to_cat.items():
-                self.settings.get_widget(f"select_{category_name}").set_value("выкл")
+            for category in Categories:
+                self.settings.get_widget(f"select_{category.name}").set_value("выкл")
                 self.conditions.delete_category(category)
-        elif enabled in CATEGORIES_NAMES:
-            self.conditions.add_category(name_to_cat[enabled])
-        elif enabled in NOT_CATEGORIES_NAMES:
-            self.conditions.delete_category(name_to_cat[enabled[4:]])
+        elif NAME_TO_CAT.get(enabled) in ALL_CATEGORIES:
+            self.conditions.add_category(NAME_TO_CAT[enabled])
+        elif NAME_TO_CAT.get(enabled[4:]) in ALL_CATEGORIES:
+            self.conditions.delete_category(NAME_TO_CAT[enabled[4:]])
 
     def _create_settings(self, game_state):
         settings = pgm.menu.Menu(
@@ -157,13 +154,12 @@ class Menus:
             selector_id="select_ALL",
         )
 
-        RUSSIAN_NAMES = ["Животные", "Птицы", "Химия", "Страны", "Еда", "Фрукты"]
-        for russian_name, category in zip(RUSSIAN_NAMES, CATEGORIES_NAMES):
+        for category in Categories:
             settings.add.selector(
-                russian_name,
-                items=[("вкл", category), ("выкл", f"NOT_{category}")],
+                category.value,
+                items=[("вкл", category.name), ("выкл", f"NOT_{category.name}")],
                 onchange=self._change_category,
-                selector_id=f"select_{category}",
+                selector_id=f"select_{category.name}",
             )
 
         game = self._create_game(game_state)

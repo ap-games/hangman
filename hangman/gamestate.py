@@ -1,4 +1,4 @@
-from hangman.conditions import Categories, ALL_CATEGORIES, Conditions
+from hangman.conditions import ALL_CATEGORIES, Categories, Conditions
 from hangman.events import *
 from random import choice
 from itertools import compress

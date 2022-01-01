@@ -9,27 +9,19 @@ class Difficulty(Enum):
     MEDIUM = 2
     HARD = 3
 
-
 class Categories(Enum):
     """
     Категории слов для угадывания
     """
-    ANIMALS = 1
-    BIRDS = 2
-    CHEMISTRY = 3
-    COUNTRIES = 4
-    FOOD = 5
-    FRUITS = 6
+    ANIMALS = "Животные"
+    BIRDS = "Птицы"
+    CHEMISTRY = "Химия"
+    COUNTRIES = "Страны"
+    FOOD = "Еда"
+    FRUITS = "Фрукты"
 
-CATEGORIES_NAMES = ["ANIMALS", "BIRDS", "CHEMISTRY", "COUNTRIES", "FOOD", "FRUITS"]
-ALL_CATEGORIES = [
-    Categories.ANIMALS,
-    Categories.BIRDS,
-    Categories.CHEMISTRY,
-    Categories.COUNTRIES,
-    Categories.FOOD,
-    Categories.FRUITS,
-]
+ALL_CATEGORIES = [category for category in Categories]
+NAME_TO_CAT = {category.name: category for category in Categories}
 
 class Conditions:
     def __init__(
@@ -54,13 +46,8 @@ class Conditions:
         print("[dbg] removed category ", category)
         self.categories.discard(category)
 
-    def set_category(self, category: Categories):
-        print("[dbg] set category ", category)
-        self.categories.clear()
-        self.categories.add(category)
-
     @property
-    def categories(self) -> set(Categories):
+    def categories(self) -> set[Categories]:
         return self._categories
 
     @property
