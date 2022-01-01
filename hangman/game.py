@@ -59,8 +59,14 @@ class Game:
             self._game_state.get_hint()
             self._menus.hide_hint()
 
+        elif event.type == PAUSE:
+            print("[dbg] on_event(): PAUSE")
+            self._current_menu = self._menus.pause
+
         elif event.type == CONTINUE:
             print("[dbg] on_event(): CONTINUE")
+            self._game_state.unpause()
+            self._current_menu = self._menus.game
 
         elif event.type == LOSE:
             print("[dbg] on_event(): LOSE")
@@ -86,7 +92,7 @@ class Game:
             self._current_menu = self._menus.main
 
         elif event.type == HIDE_HINT:
-            print("[dbg]on_event(); HIDE_HINT")
+            print("[dbg] on_event(); HIDE_HINT")
             self._menus.hide_hint()
 
     def run(self):

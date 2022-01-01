@@ -47,6 +47,13 @@ class GameState:
         self._last_measured_time = datetime.datetime.now()
         self.time_left = conditions.time_limit
 
+    def unpause(self):
+        """
+        Обновляет последнее измеренное время,
+        чтобы при снятии игры с паузы таймер не считал паузу за игровое время
+        """
+        self._last_measured_time = datetime.datetime.now()
+
     def update_timer(self):
         """
         Обновляет таймер
