@@ -104,25 +104,25 @@ class Menus:
         _, index = value
         self.conditions.difficulty = Difficulty(index + 1)
 
-    def _change_hint(self, value: Tuple, enabled: bool) -> None:
-        self.conditions.has_hint = enabled
+    def _change_hint(self, value: Tuple, has_hint: bool) -> None:
+        self.conditions.has_hint = has_hint
 
-    def _change_timer(self, value: Tuple, enabled: bool) -> None:
-        self.conditions.has_timer = enabled
+    def _change_timer(self, value: Tuple, has_timer: bool) -> None:
+        self.conditions.has_timer = has_timer
 
-    def _change_category(self, value: Tuple, enabled: str) -> None:
-        if enabled == "ALL":
+    def _change_category(self, value: Tuple, category_name: str) -> None:
+        if category_name == "ALL":
             for category in Categories:
                 self.settings.get_widget(f"select_{category.name}").set_value("вкл")
                 self.conditions.add_category(category)
-        elif enabled == "NONE":
+        elif category_name == "NONE":
             for category in Categories:
                 self.settings.get_widget(f"select_{category.name}").set_value("выкл")
                 self.conditions.delete_category(category)
-        elif NAME_TO_CAT.get(enabled) in ALL_CATEGORIES:
-            self.conditions.add_category(NAME_TO_CAT[enabled])
-        elif NAME_TO_CAT.get(enabled[4:]) in ALL_CATEGORIES:
-            self.conditions.delete_category(NAME_TO_CAT[enabled[4:]])
+        elif NAME_TO_CAT.get(category_name) in ALL_CATEGORIES:
+            self.conditions.add_category(NAME_TO_CAT[category_name])
+        elif NAME_TO_CAT.get(category_name[4:]) in ALL_CATEGORIES:
+            self.conditions.delete_category(NAME_TO_CAT[category_name[4:]])
 
     def _create_settings(self, game_state):
         settings = pgm.menu.Menu(
