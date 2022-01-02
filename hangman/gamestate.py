@@ -1,9 +1,11 @@
+from collections import defaultdict
 from hangman.conditions import ALL_CATEGORIES, Categories, Conditions
 from hangman.events import *
 from random import choice
 from itertools import compress
 import datetime
 import os.path
+import json
 
 ALPHABET = list("АБВГДЕЖИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ")
 
@@ -37,15 +39,15 @@ class GameState:
         """
         Приводит GameState к исходному состоянию для начала новой игры.
         """
-        # dev: в зависимости от condition.difficulty можно давать разное количество жизней
-        self._lifes = conditions.max_lifes
+        self._lifes = conditions.difficulty.lifes
         self._hint_used = not conditions.has_hint
-        self.word = self._get_word(conditions.categories)
+        self.time_left = conditions.difficulty.time_limit
+
+        self.word = self._get_word(conditions.categories, conditions.difficulty.letters_to_guess)
         self._left_to_guess = len(self.word)
-        self.processed_letters = dict.fromkeys(ALPHABET, False)
 
         self._last_measured_time = datetime.datetime.now()
-        self.time_left = conditions.time_limit
+        self.processed_letters = dict.fromkeys(ALPHABET, False)
 
     def unpause(self):
         """
@@ -71,7 +73,7 @@ class GameState:
             self.time_left = datetime.timedelta(0)  # чтобы не уходило в ноль
             post_lose()
 
-    def _get_word(self, categories: set(Categories)) -> str:
+    def _get_word(self, categories: set(Categories), unique_letters: range) -> str:
         """
         Выбирает рандомное слово для угадывания из переданных категорий
         """
@@ -85,12 +87,25 @@ class GameState:
         category_fname = CATEGORY_FILENAME[random_category]
         path_to_dict = os.path.join("dicts", category_fname)
 
-        # выбрать из словаря случайное слово
-        dict: list = None
+        # загрузить словарь
+        dictionary: dict = None
         with open(path_to_dict, "r", encoding="utf-8") as fdict:
-            dict = fdict.read().splitlines()
+            dictionary = json.load(fdict)
 
-        word = choice(dict)
+        # выбрать из него слова с подходящим числом уникальных букв
+        words_with_matching_ul = []
+        for ul in unique_letters:
+            dict_ul = dictionary.get(str(ul))
+            if dict_ul is not None:
+                words_with_matching_ul += dict_ul
+
+        if len(words_with_matching_ul) == 0:
+            print("[err] no words with given unique letters found in dicts!")
+            print("[err] using default word")
+            print("[dbg] guessed word: СЛОВАРИ")  # dev: временное решение
+            return "СЛОВАРИ"  
+
+        word = choice(words_with_matching_ul)
         print(f"[dbg] guessed word: {word}")
         return word
 

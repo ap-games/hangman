@@ -1,16 +1,16 @@
 from enum import Enum
-from typing import TypedDict
+from typing import NamedTuple
 import datetime
 
 
-class Difficulty(TypedDict):
+class Difficulty(NamedTuple):
     """
     Сложность игры
     """
 
     name: str
     translation: str
-    max_lifes: int
+    lifes: int
     time_limit: datetime.timedelta
     letters_to_guess: range
 
@@ -19,21 +19,21 @@ Difficulties = {
     "EASY": Difficulty(
         name="EASY",
         translation="Легко",
-        max_lifes=8,
+        lifes=8,
         time_limit=datetime.timedelta(minutes=3),
         letters_to_guess=range(3, 5),
     ),
     "MEDIUM": Difficulty(
         name="MEDIUM",
         translation="Средне",
-        max_lifes=6,
+        lifes=6,
         time_limit=datetime.timedelta(minutes=2, seconds=30),
         letters_to_guess=range(5, 7),
     ),
     "HARD": Difficulty(
         name="HARD",
         translation="Сложно",
-        max_lifes=4,
+        lifes=4,
         time_limit=datetime.timedelta(minutes=2),
         letters_to_guess=range(7, 10),
     ),
@@ -65,8 +65,6 @@ class Conditions:
         has_timer: bool,
         has_hint: bool,
     ):
-        self.max_lifes = 8
-        self.time_limit = datetime.timedelta(seconds=60)
         self._difficulty = difficulty
         self._categories = categories
         self._has_timer = has_timer
@@ -90,7 +88,7 @@ class Conditions:
 
     @difficulty.setter
     def difficulty(self, difficulty: Difficulty):
-        print("[dbg] difficulty set to ", difficulty["name"])
+        print("[dbg] difficulty set to ", difficulty.name)
         self._difficulty = difficulty
 
     @property
