@@ -75,10 +75,10 @@ class Game:
             self._current_menu = self._menus.defeat
 
         elif event.type == WIN:
+            print("[dbg] on_event(): WIN")
             self._stats.played += 1
             self._stats.won += 1
             self._menus.update_stats(self._stats)
-            print("[dbg] on_event(): WIN")
             self._current_menu = self._menus.victory
 
         elif event.type == START_GAME:

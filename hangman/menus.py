@@ -19,6 +19,7 @@ from hangman.statistics import Statistics
 class Buttons(Enum):
     HINT = "hint_button"
     PAUSE = "pause_button"
+    START = "start_button"
 
 
 class Labels(Enum):
@@ -84,6 +85,22 @@ class Menus:
 
     def hide_hint(self):
         self.game.get_widget(Buttons.HINT.value).hide()
+
+    def block_start(self):
+        color = pgm.themes.THEME_DEFAULT.readonly_color
+        start_button = self.settings.get_widget(Buttons.START.value)
+        start_button.set_title("Продолжить (выберите категории)")
+        start_button.update_callback(do_nothing)
+        start_button.update_font({"color": color, "selected_color": color})
+
+    def allow_start(self):
+        color = pgm.themes.THEME_DEFAULT.widget_font_color
+        selected_color = pgm.themes.THEME_DEFAULT.selection_color
+        start_button = self.settings.get_widget(Buttons.START.value)
+        start_button.update_font({"color": color, "selected_color": selected_color})
+        start_button.set_title("Продолжить")
+        start_button.update_callback(post_start_game)
+
 
     def update_stats(self, stats: Statistics):
         played_label = self.stats.get_widget(Labels.PLAYED.value)
@@ -159,8 +176,7 @@ class Menus:
                 selector_id=f"select_{category.name}",
             )
 
-        game = self._create_game(game_state)
-        settings.add.button("Продолжить", post_start_game)
+        settings.add.button("Продолжить", post_start_game, button_id=Buttons.START.value)        
         settings.add.button("Назад", pgm.events.BACK)
         return settings
 
@@ -232,3 +248,15 @@ class Menus:
             self.conditions.add_category(NAME_TO_CAT[category_name])
         elif NAME_TO_CAT.get(category_name[4:]) in ALL_CATEGORIES:
             self.conditions.delete_category(NAME_TO_CAT[category_name[4:]])
+
+        if len(self.conditions.categories) == 0:
+            self.block_start()
+        else:
+            self.allow_start()
+
+def do_nothing():
+    """
+    Функция которая не делает ничего.
+    Используется как callback для блокировки кнопок
+    """
+    pass
