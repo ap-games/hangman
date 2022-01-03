@@ -27,7 +27,8 @@ class TestDicts(unittest.TestCase):
             for _, difficulty in Difficulties.items():
                 self.assertTrue(
                     dict_handle_difficulty(dict_name, difficulty),
-                    msg=f"Dict {dict_name} doesn't handle difficulty {difficulty.name} which wants {difficulty.letters_to_guess} unique letters",
+                    msg=f"Dict {dict_name} doesn't handle difficulty {difficulty.name} \
+                    which wants {difficulty.letters_to_guess} unique letters",
                 )
 
 
@@ -35,18 +36,18 @@ def dict_handle_difficulty(dict_name: str, difficulty: Difficulty) -> bool:
     dict_path = DICT_DIR / dict_name
 
     # Открываем словарь
-    dictionary: dict = None
-    with open(dict_path, "r", encoding="utf-8") as fdict:
-        dictionary = json.load(fdict)
+    with open(dict_path, "r", encoding="utf-8") as dict_file:
+        dictionary = json.load(dict_file)
 
     # Проверяем, есть ли в нем слова для заданнго уровня сложности
-    words_with_matching_ul = []
-    for ul in difficulty.letters_to_guess:
-        dict_ul = dictionary.get(str(ul))
+    words = []
+    for uniq_letters in difficulty.letters_to_guess:
+        # Загружаем слова с uniq_letters уникальных букв
+        dict_ul = dictionary.get(str(uniq_letters))
         if dict_ul is not None:
-            words_with_matching_ul += dict_ul
+            words += dict_ul
 
-    if len(words_with_matching_ul) == 0:
+    if len(words) == 0:
         return False
 
     return True
