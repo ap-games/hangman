@@ -1,3 +1,6 @@
+from enum import Enum
+from typing import Any
+
 from pygame import event
 
 
@@ -11,6 +14,29 @@ START_GAME = event.custom_type()
 BACK_TO_MAIN = event.custom_type()
 HIDE_HINT = event.custom_type()
 LETTER_CHOSEN = event.custom_type()
+CHANGE_CONDITIONS = event.custom_type()
+BLOCK_START = event.custom_type()
+ALLOW_START = event.custom_type()
+
+
+class ConditionsChange(Enum):
+    DIFFICULTY = "CHANGE_DIFFICULTY"
+    HINT = "CHANGE_HINT"
+    TIMER = "CHANGE_TIMER"
+    ADD_CATEGORY = "ADD_CATEGORY"
+    REMOVE_CATEGORY = "REMOVE_CATEGORY"
+
+
+def post_block_start():
+    event.post(event.Event(BLOCK_START))
+
+
+def post_allow_start():
+    event.post(event.Event(ALLOW_START))
+
+
+def post_change_conditions(change: ConditionsChange, to: Any):
+    event.post(event.Event(CHANGE_CONDITIONS, {"action": change, "value": to}))
 
 
 def post_letter_chosen(letter: str):

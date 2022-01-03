@@ -1,6 +1,5 @@
 import pygame_menu as pgm
 from typing import Tuple
-from enum import Enum
 import datetime
 
 from hangman.events import *
@@ -10,7 +9,7 @@ from hangman.conditions import (
     NAME_TO_CAT,
     Conditions,
     Categories,
-    Difficulties,
+    Difficulties, Difficulty,
 )
 from hangman.statistics import Statistics
 
@@ -43,7 +42,7 @@ class Menus:
     ):
         self._height = height
         self._width = width
-        self.conditions = conditions
+
         self.victory = self._create_victory()
         self.defeat = self._create_defeat()
         self.stats = self._create_stats(stats)
@@ -141,8 +140,8 @@ class Menus:
         settings.add.selector(
             "",
             [
-                (difficulty.translation, name)
-                for (name, difficulty) in Difficulties.items()
+                (difficulty.translation, difficulty)
+                for (_, difficulty) in Difficulties.items()
             ],
             onchange=self._change_difficulty,
             selector_id="select_difficulty",
@@ -174,6 +173,8 @@ class Menus:
                 onchange=self._change_category,
                 selector_id=f"select_{category.name}",
             )
+
+        # TODO: block start if no categories present
 
         settings.add.button("Продолжить", post_start_game, button_id=Buttons.START.value)
         settings.add.button("Назад", pgm.events.BACK)
@@ -226,33 +227,33 @@ class Menus:
         return defeat
 
     # --- onchange methods ---
-    def _change_difficulty(self, _: Tuple[any, int], difficulty: str) -> None:
-        self.conditions.difficulty = Difficulties[difficulty]
+    @staticmethod
+    def _change_difficulty(_: Tuple[any, int], difficulty: Difficulty) -> None:
+        post_change_conditions(ConditionsChange.DIFFICULTY, difficulty)
 
-    def _change_hint(self, _: Tuple, has_hint: bool) -> None:
-        self.conditions.has_hint = has_hint
+    @staticmethod
+    def _change_hint(_: Tuple, has_hint: bool) -> None:
+        post_change_conditions(ConditionsChange.HINT, has_hint)
 
-    def _change_timer(self, _: Tuple, has_timer: bool) -> None:
-        self.conditions.has_timer = has_timer
+    @staticmethod
+    def _change_timer(_: Tuple, has_timer: bool) -> None:
+        post_change_conditions(ConditionsChange.TIMER, has_timer)
 
     def _change_category(self, _: Tuple, category_name: str) -> None:
         if category_name == "ALL":
             for category in Categories:
                 self.settings.get_widget(f"select_{category.name}").set_value("вкл")
-                self.conditions.add_category(category)
+                post_change_conditions(ConditionsChange.ADD_CATEGORY, category)
         elif category_name == "NONE":
             for category in Categories:
                 self.settings.get_widget(f"select_{category.name}").set_value("выкл")
-                self.conditions.delete_category(category)
+                post_change_conditions(ConditionsChange.REMOVE_CATEGORY, category)
         elif NAME_TO_CAT.get(category_name) in ALL_CATEGORIES:
-            self.conditions.add_category(NAME_TO_CAT[category_name])
+            category = NAME_TO_CAT[category_name]
+            post_change_conditions(ConditionsChange.ADD_CATEGORY, category)
         elif NAME_TO_CAT.get(category_name[4:]) in ALL_CATEGORIES:
-            self.conditions.delete_category(NAME_TO_CAT[category_name[4:]])
-
-        if len(self.conditions.categories) == 0:
-            self.block_start()
-        else:
-            self.allow_start()
+            category = NAME_TO_CAT[category_name[4:]]
+            post_change_conditions(ConditionsChange.REMOVE_CATEGORY, category)
 
 
 def do_nothing():

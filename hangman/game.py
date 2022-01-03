@@ -98,6 +98,20 @@ class Game:
             print(f"[dbg] on_event(); LETTER_CHOSEN {event.letter}")
             self._game_state.process_letter(event.letter)
 
+        elif event.type == CHANGE_CONDITIONS:
+            print("[dbg] on_event(); CHANGE_CONDITIONS")
+            action = event.action
+            value = event.value
+            self._conditions.handle_action(action, value)
+
+        elif event.type == BLOCK_START:
+            print("[dbg] on_event(); BLOCK_STARt")
+            self._menus.block_start()
+
+        elif event.type == ALLOW_START:
+            print("[dbg] on_event(); ALLOW_START")
+            self._menus.allow_start()
+
     def run(self):
         clock = pg.time.Clock()
 
