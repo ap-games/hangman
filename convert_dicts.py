@@ -12,19 +12,19 @@ from collections import defaultdict
 DICT_DIR = "dicts"
 RAW_DICT_DIR = os.path.join(DICT_DIR, "raw_dicts")
 
-def convert_dict(dict_name: str):
-    content = None
-    with open(os.path.join(RAW_DICT_DIR, dict_name), "r", encoding="utf-8") as fdict:
-        content = fdict.read()
 
-    dict = defaultdict(list)
+def convert_dict(dict_name: str):
+    with open(os.path.join(RAW_DICT_DIR, dict_name), "r", encoding="utf-8") as dict_file:
+        content = dict_file.read()
+
+    dictionary = defaultdict(list)
     for word in content.splitlines():
         unique_letters = len(set(word))
-        dict[unique_letters].append(word)
+        dictionary[unique_letters].append(word)
 
     new_dict_path = os.path.join(DICT_DIR, dict_name)
-    with open(new_dict_path, "w", encoding="utf-8") as fdict:
-        json.dump(dict, fdict, ensure_ascii=False)
+    with open(new_dict_path, "w", encoding="utf-8") as dict_file:
+        json.dump(dictionary, dict_file, ensure_ascii=False, indent=4, sort_keys=True)
 
 
 if __name__ == "__main__":
