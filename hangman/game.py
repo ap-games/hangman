@@ -105,7 +105,7 @@ class Game:
             self._conditions.handle_action(action, value)
 
         elif event.type == BLOCK_START:
-            print("[dbg] on_event(); BLOCK_STARt")
+            print("[dbg] on_event(); BLOCK_START")
             self._menus.block_start()
 
         elif event.type == ALLOW_START:

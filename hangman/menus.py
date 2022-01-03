@@ -48,7 +48,7 @@ class Menus:
         self.stats = self._create_stats(stats)
         self.pause = self._create_pause()
         self.game = self._create_game()
-        self.settings = self._create_settings()
+        self.settings = self._create_settings(conditions)
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
@@ -133,7 +133,7 @@ class Menus:
         stat.add.button("Сбросить", post_clear_stats)
         return stat
 
-    def _create_settings(self):
+    def _create_settings(self, conditions: Conditions):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
@@ -141,7 +141,7 @@ class Menus:
             "",
             [
                 (difficulty.translation, difficulty)
-                for (_, difficulty) in Difficulties.items()
+                for difficulty in Difficulties.values()
             ],
             onchange=self._change_difficulty,
             selector_id="select_difficulty",
@@ -174,7 +174,8 @@ class Menus:
                 selector_id=f"select_{category.name}",
             )
 
-        # TODO: block start if no categories present
+        if len(conditions.categories) == 0:
+            post_block_start()
 
         settings.add.button("Продолжить", post_start_game, button_id=Buttons.START.value)
         settings.add.button("Назад", pgm.events.BACK)

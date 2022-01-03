@@ -4,6 +4,7 @@ import datetime
 
 from hangman.events import *
 
+
 class Difficulty(NamedTuple):
     """
     Сложность игры
