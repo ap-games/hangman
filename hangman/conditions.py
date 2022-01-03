@@ -2,6 +2,8 @@ from enum import Enum
 from typing import NamedTuple
 import datetime
 
+from hangman.events import *
+
 
 class Difficulty(NamedTuple):
     """
@@ -70,13 +72,31 @@ class Conditions:
         self._has_timer = has_timer
         self._has_hint = has_hint
 
+    def handle_action(self, action: ConditionsChange, value: Any):
+        if action == ConditionsChange.DIFFICULTY:
+            self.difficulty = value
+        elif action == ConditionsChange.HINT:
+            self.has_hint = value
+        elif action == ConditionsChange.TIMER:
+            self.has_timer = value
+        elif action == ConditionsChange.ADD_CATEGORY:
+            self.add_category(value)
+        elif action == ConditionsChange.REMOVE_CATEGORY:
+            self.remove_category(value)
+
     def add_category(self, category: Categories):
         print("[dbg] added category ", category)
         self.categories.add(category)
+        if len(self.categories) == 1:
+            # если добавили хоть одну категорию, разрешить старт
+            post_allow_start()
 
-    def delete_category(self, category: Categories):
+    def remove_category(self, category: Categories):
         print("[dbg] removed category ", category)
         self.categories.discard(category)
+        if len(self.categories) == 0:
+            # если убрали все категории, запретить старт
+            post_block_start()
 
     @property
     def categories(self) -> set[Categories]:
