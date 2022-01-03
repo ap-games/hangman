@@ -201,11 +201,12 @@ class Menus:
         game.add.label("", label_id=Labels.TIMER.value)
         game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
 
-        buttons = lambda letter: game.add.button(
-            letter, lambda: post_letter_chosen(letter), cursor=pgm.locals.CURSOR_HAND
-        )
         for letter in ALPHABET:
-            buttons(letter)
+            game.add.button(
+                title=letter,
+                action=lambda l=letter: post_letter_chosen(l),
+                cursor=pgm.locals.CURSOR_HAND
+            )
 
         game.add.button("Назад", post_back_to_main)
         return game
