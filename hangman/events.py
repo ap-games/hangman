@@ -10,6 +10,11 @@ WIN = event.custom_type()
 START_GAME = event.custom_type()
 BACK_TO_MAIN = event.custom_type()
 HIDE_HINT = event.custom_type()
+LETTER_CHOSEN = event.custom_type()
+
+
+def post_letter_chosen(letter: str):
+    event.post(event.Event(LETTER_CHOSEN, {"letter": letter}))
 
 
 def post_clear_stats():

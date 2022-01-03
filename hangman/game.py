@@ -31,7 +31,6 @@ class Game:
             width=self._width,
             height=self._height,
             conditions=self._conditions,
-            game_state=self._game_state,
             stats=self._stats,
         )
         self._current_menu = self._menus.main
@@ -94,6 +93,10 @@ class Game:
         elif event.type == HIDE_HINT:
             print("[dbg] on_event(); HIDE_HINT")
             self._menus.hide_hint()
+
+        elif event.type == LETTER_CHOSEN:
+            print(f"[dbg] on_event(); LETTER_CHOSEN {event.letter}")
+            self._game_state.process_letter(event.letter)
 
     def run(self):
         clock = pg.time.Clock()

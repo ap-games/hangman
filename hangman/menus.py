@@ -3,7 +3,6 @@ from typing import Tuple
 from enum import Enum
 import datetime
 
-
 from hangman.events import *
 from hangman.gamestate import GameState, ALPHABET
 from hangman.conditions import (
@@ -26,7 +25,7 @@ class Labels(Enum):
     PLAYED = "label_played"
     WON = "label_won"
     LOST = "label_lost"
-    WIN_RATE = "label_winrate"
+    WIN_RATE = "label_win_rate"
     TIMER = "label_timer"
 
 
@@ -36,12 +35,11 @@ class Menus:
     """
 
     def __init__(
-        self,
-        width: int,
-        height: int,
-        conditions: Conditions,
-        game_state: GameState,
-        stats: Statistics,
+            self,
+            width: int,
+            height: int,
+            conditions: Conditions,
+            stats: Statistics,
     ):
         self._height = height
         self._width = width
@@ -50,7 +48,7 @@ class Menus:
         self.defeat = self._create_defeat()
         self.stats = self._create_stats(stats)
         self.pause = self._create_pause()
-        self.game = self._create_game(game_state)
+        self.game = self._create_game()
         self.settings = self._create_settings()
         self.main = self._create_main(self.settings, self.stats)
 
@@ -88,6 +86,7 @@ class Menus:
 
     def block_start(self):
         color = pgm.themes.THEME_DEFAULT.readonly_color
+
         start_button = self.settings.get_widget(Buttons.START.value)
         start_button.set_title("Продолжить (выберите категории)")
         start_button.update_callback(do_nothing)
@@ -96,26 +95,26 @@ class Menus:
     def allow_start(self):
         color = pgm.themes.THEME_DEFAULT.widget_font_color
         selected_color = pgm.themes.THEME_DEFAULT.selection_color
+
         start_button = self.settings.get_widget(Buttons.START.value)
-        start_button.update_font({"color": color, "selected_color": selected_color})
         start_button.set_title("Продолжить")
         start_button.update_callback(post_start_game)
-
+        start_button.update_font({"color": color, "selected_color": selected_color})
 
     def update_stats(self, stats: Statistics):
         played_label = self.stats.get_widget(Labels.PLAYED.value)
         won_label = self.stats.get_widget(Labels.WON.value)
         lost_label = self.stats.get_widget(Labels.LOST.value)
-        winrate_label = self.stats.get_widget(Labels.WIN_RATE.value)
+        win_rate_label = self.stats.get_widget(Labels.WIN_RATE.value)
 
         played_label.set_title(f"Сыграно игр: {stats.played}")
         lost_label.set_title(f"Поражений: {stats.played - stats.won}")
         won_label.set_title(f"Побед: {stats.won}")
-        winrate_label.set_title(f"Винрейт: {stats.win_rate}")
+        win_rate_label.set_title(f"Винрейт: {stats.win_rate}")
 
-        winrate_label.show()
+        win_rate_label.show()
         if stats.win_rate is None:
-            winrate_label.hide()
+            win_rate_label.hide()
 
     def _create_stats(self, stats: Statistics):
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
@@ -125,11 +124,11 @@ class Menus:
         stat.add.label(
             f"Поражений: {stats.played - stats.won}", label_id=Labels.LOST.value
         )
-        winrate_label = stat.add.label(
+        win_rate_label = stat.add.label(
             f"Винрейт: {stats.win_rate}", label_id=Labels.WIN_RATE.value
         )
         if stats.win_rate is None:
-            winrate_label.hide()
+            win_rate_label.hide()
 
         stat.add.button("Назад", pgm.events.BACK)
         stat.add.button("Сбросить", post_clear_stats)
@@ -176,7 +175,7 @@ class Menus:
                 selector_id=f"select_{category.name}",
             )
 
-        settings.add.button("Продолжить", post_start_game, button_id=Buttons.START.value)        
+        settings.add.button("Продолжить", post_start_game, button_id=Buttons.START.value)
         settings.add.button("Назад", pgm.events.BACK)
         return settings
 
@@ -195,15 +194,15 @@ class Menus:
 
         return pause
 
-    def _create_game(self, game_state):
+    def _create_game(self):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
         game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
         game.add.label("", label_id=Labels.TIMER.value)
         game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
 
-        buttons = lambda x: game.add.button(
-            x, lambda: game_state.process_letter(x), cursor=pgm.locals.CURSOR_HAND
+        buttons = lambda letter: game.add.button(
+            letter, lambda: post_letter_chosen(letter), cursor=pgm.locals.CURSOR_HAND
         )
         for letter in ALPHABET:
             buttons(letter)
@@ -253,6 +252,7 @@ class Menus:
             self.block_start()
         else:
             self.allow_start()
+
 
 def do_nothing():
     """
