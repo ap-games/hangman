@@ -7,7 +7,7 @@ import datetime
 import os.path
 import json
 
-ALPHABET = list("АБВГДЕЖИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ")
+ALPHABET = list("ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ")
 
 CATEGORY_FILENAME = {
     Categories.ANIMALS: "animals.txt",

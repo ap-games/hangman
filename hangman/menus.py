@@ -199,18 +199,20 @@ class Menus:
     def _create_game(self):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
+        upper_row = game.add.frame_h(40 * 12, 50, padding=0)
+        middle_row = game.add.frame_h(40 * 11, 50, padding=0)
+        bottom_row = game.add.frame_h(40 * 9, 50, padding=0)
+
+        frames = [upper_row, middle_row, bottom_row]
+        qwerty = ["ЙЦУКЕНГШЩЗХЪ", "ФЫВАПРОЛДЖЭ", "ЯЧСМИТЬБЮ"]
+        for frame, row in zip(frames, qwerty):
+            for letter in row:
+                frame.pack(game.add.button(title=letter, action=lambda l=letter: post_letter_chosen(l), cursor=pgm.locals.CURSOR_HAND))
+
         game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
         game.add.label("", label_id=Labels.TIMER.value)
         game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
 
-        for letter in ALPHABET:
-            game.add.button(
-                title=letter,
-                action=lambda l=letter: post_letter_chosen(l),
-                cursor=pgm.locals.CURSOR_HAND
-            )
-
-        game.add.button("Назад", post_back_to_main)
         return game
 
     def _create_victory(self):
