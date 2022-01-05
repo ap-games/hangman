@@ -150,8 +150,9 @@ class Menus:
         played_label.set_title(f"Сыграно игр: {stats.played}")
         lost_label.set_title(f"Поражений: {stats.played - stats.won}")
         won_label.set_title(f"Побед: {stats.won}")
-        win_rate_label.set_title(f"Винрейт: {stats.win_rate}")
 
+        win_rate = int(stats.win_rate * 100) if stats.win_rate is not None else 0
+        win_rate_label.set_title(f"Процент побед: {win_rate}%")
         win_rate_label.show()
         if stats.win_rate is None:
             win_rate_label.hide()
@@ -164,8 +165,9 @@ class Menus:
         stat.add.label(
             f"Поражений: {stats.played - stats.won}", label_id=Labels.LOST.value
         )
+        win_rate = int(stats.win_rate * 100) if stats.win_rate is not None else 0
         win_rate_label = stat.add.label(
-            f"Винрейт: {stats.win_rate}", label_id=Labels.WIN_RATE.value
+            f"Процент побед: {win_rate}%", label_id=Labels.WIN_RATE.value
         )
         if stats.win_rate is None:
             win_rate_label.hide()
