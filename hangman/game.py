@@ -88,7 +88,7 @@ class Game:
         elif event.type == START_GAME:
             print("[dbg] on_event(); START_GAME")
             self._game_state.new_game(self._conditions)
-            self._menus.setup_game(self._conditions)
+            self._menus.setup_game(self._conditions, self._game_state.word)
             self._current_menu = self._menus.game
 
         elif event.type == BACK_TO_MAIN:
@@ -102,6 +102,7 @@ class Game:
         elif event.type == LETTER_CHOSEN:
             print(f"[dbg] on_event(); LETTER_CHOSEN {event.letter}")
             self._game_state.process_letter(event.letter)
+            self._menus.reveal_letter(event.letter)
 
         elif event.type == CHANGE_CONDITIONS:
             print("[dbg] on_event(); CHANGE_CONDITIONS")
