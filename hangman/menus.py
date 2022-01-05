@@ -59,6 +59,7 @@ class Menus:
         self.victory.resize(width, height)
         self.defeat.resize(width, height)
         self.game.resize(width, height)
+        self.pause.resize(width, height)
 
     def setup_game(self, conditions: Conditions, game_state: GameState):
         """
