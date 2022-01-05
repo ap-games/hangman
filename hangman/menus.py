@@ -20,7 +20,6 @@ CUR_FILE_PATH = Path(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = CUR_FILE_PATH.parent
 ASSETS_DIR = ROOT_DIR / "assets"
 
-
 class Buttons(Enum):
     HINT = "hint_button"
     PAUSE = "pause_button"
@@ -43,6 +42,16 @@ class Frames(Enum):
     GUESSED_WORD = "frame_guessed_word"
 
 
+def create_theme() -> pgm.Theme:
+    theme = pgm.themes.THEME_DEFAULT.copy()
+
+    # Убрать меню-бар
+    theme.title_bar_style = pgm.widgets.MENUBAR_STYLE_NONE
+    theme.title_font_color = (0, 0, 0, 0)
+
+    return theme
+
+
 class Menus:
     """
     Создает и хранит в себе игровые меню
@@ -57,6 +66,7 @@ class Menus:
     ):
         self._height = height
         self._width = width
+        self.theme = create_theme()
 
         self.victory = self._create_victory()
         self.defeat = self._create_defeat()
@@ -176,7 +186,7 @@ class Menus:
             win_rate_label.hide()
 
     def _create_stats(self, stats: Statistics):
-        stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
+        stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width, theme=self.theme)
 
         stat.add.label(f"Сыграно игр: {stats.played}", label_id=Labels.PLAYED.value)
         stat.add.label(f"Побед: {stats.won}", label_id=Labels.WON.value)
@@ -196,7 +206,7 @@ class Menus:
 
     def _create_settings(self, conditions: Conditions):
         settings = pgm.menu.Menu(
-            title="Настройки", height=self._height, width=self._width
+            title="Настройки", height=self._height, width=self._width, theme=self.theme
         )
         settings.add.selector(
             "",
@@ -245,14 +255,14 @@ class Menus:
         return settings
 
     def _create_main(self, settings, stats):
-        main = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
+        main = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width, theme=self.theme)
         main.add.button("Играть", settings)
         main.add.button("Статистика", stats)
         main.add.button("Выйти", pgm.events.EXIT)
         return main
 
     def _create_pause(self):
-        pause = pgm.menu.Menu(title="Пауза", height=self._height, width=self._width)
+        pause = pgm.menu.Menu(title="Пауза", height=self._height, width=self._width, theme=self.theme)
 
         pause.add.button("Продолжить", post_continue)
         pause.add.button("Закончить игру", post_back_to_main)
@@ -260,7 +270,7 @@ class Menus:
         return pause
 
     def _create_game(self):
-        game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
+        game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width, theme=self.theme)
 
         game.add.image(ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value)
 
@@ -291,14 +301,14 @@ class Menus:
 
     def _create_victory(self):
         victory = pgm.menu.Menu(
-            title="Вы выиграли!", height=self._height, width=self._width
+            title="Вы выиграли!", height=self._height, width=self._width, theme=self.theme
         )
         victory.add.button("Назад", post_back_to_main)
         return victory
 
     def _create_defeat(self):
         defeat = pgm.menu.Menu(
-            title="Вы проиграли!", height=self._height, width=self._width
+            title="Вы проиграли!", height=self._height, width=self._width, theme=self.theme
         )
 
         defeat.add.image(ASSETS_DIR / "gallows_0.png")
