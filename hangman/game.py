@@ -1,5 +1,6 @@
 import pygame as pg
 
+import time
 from hangman.events import *
 
 from hangman.statistics import Statistics
@@ -67,6 +68,10 @@ class Game:
             self._game_state.unpause()
             self._current_menu = self._menus.game
 
+        elif event.type == WRONG_GUESS:  
+            print(f"[dbg] on_event(); DRAW_GALLOWS")
+            self._menus.update_gallows(self._game_state.lifes)
+
         elif event.type == LOSE:
             print("[dbg] on_event(): LOSE")
             self._stats.played += 1
@@ -83,7 +88,7 @@ class Game:
         elif event.type == START_GAME:
             print("[dbg] on_event(); START_GAME")
             self._game_state.new_game(self._conditions)
-            self._menus.setup_game(self._conditions, self._game_state)
+            self._menus.setup_game(self._conditions)
             self._current_menu = self._menus.game
 
         elif event.type == BACK_TO_MAIN:
