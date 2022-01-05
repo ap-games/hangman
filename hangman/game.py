@@ -68,7 +68,7 @@ class Game:
             self._game_state.unpause()
             self._current_menu = self._menus.game
 
-        elif event.type == WRONG_GUESS:  
+        elif event.type == WRONG_GUESS:
             print(f"[dbg] on_event(); DRAW_GALLOWS")
             self._menus.update_gallows(self._game_state.lifes)
 

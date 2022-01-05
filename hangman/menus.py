@@ -9,7 +9,8 @@ from hangman.conditions import (
     NAME_TO_CAT,
     Conditions,
     Categories,
-    Difficulties, Difficulty,
+    Difficulties,
+    Difficulty,
 )
 from hangman.statistics import Statistics
 from pathlib import Path
@@ -18,6 +19,7 @@ import os, os.path
 CUR_FILE_PATH = Path(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = CUR_FILE_PATH.parent
 ASSETS_DIR = ROOT_DIR / "assets"
+
 
 class Buttons(Enum):
     HINT = "hint_button"
@@ -32,6 +34,7 @@ class Labels(Enum):
     WIN_RATE = "label_win_rate"
     TIMER = "label_timer"
 
+
 class Images(Enum):
     GALLOWS = "image_gallows"
 
@@ -42,11 +45,11 @@ class Menus:
     """
 
     def __init__(
-            self,
-            width: int,
-            height: int,
-            conditions: Conditions,
-            stats: Statistics,
+        self,
+        width: int,
+        height: int,
+        conditions: Conditions,
+        stats: Statistics,
     ):
         self._height = height
         self._width = width
@@ -193,7 +196,9 @@ class Menus:
         if len(conditions.categories) == 0:
             post_block_start()
 
-        settings.add.button("Продолжить", post_start_game, button_id=Buttons.START.value)
+        settings.add.button(
+            "Продолжить", post_start_game, button_id=Buttons.START.value
+        )
         settings.add.button("Назад", pgm.events.BACK)
         return settings
 
@@ -225,7 +230,13 @@ class Menus:
         qwerty = ["ЙЦУКЕНГШЩЗХЪ", "ФЫВАПРОЛДЖЭ", "ЯЧСМИТЬБЮ"]
         for frame, row in zip(frames, qwerty):
             for letter in row:
-                frame.pack(game.add.button(title=letter, action=lambda l=letter: post_letter_chosen(l), cursor=pgm.locals.CURSOR_HAND))
+                frame.pack(
+                    game.add.button(
+                        title=letter,
+                        action=lambda l=letter: post_letter_chosen(l),
+                        cursor=pgm.locals.CURSOR_HAND,
+                    )
+                )
 
         game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
         game.add.label("", label_id=Labels.TIMER.value)

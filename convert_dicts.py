@@ -14,7 +14,9 @@ RAW_DICT_DIR = os.path.join(DICT_DIR, "raw_dicts")
 
 
 def convert_dict(dict_name: str):
-    with open(os.path.join(RAW_DICT_DIR, dict_name), "r", encoding="utf-8") as dict_file:
+    with open(
+        os.path.join(RAW_DICT_DIR, dict_name), "r", encoding="utf-8"
+    ) as dict_file:
         content = dict_file.read()
 
     dictionary = defaultdict(list)
@@ -28,7 +30,11 @@ def convert_dict(dict_name: str):
 
 
 if __name__ == "__main__":
-    dict_names = [f for f in os.listdir(RAW_DICT_DIR) if os.path.isfile(os.path.join(RAW_DICT_DIR, f))]
+    dict_names = [
+        f
+        for f in os.listdir(RAW_DICT_DIR)
+        if os.path.isfile(os.path.join(RAW_DICT_DIR, f))
+    ]
 
     for dict_name in dict_names:
         convert_dict(dict_name)

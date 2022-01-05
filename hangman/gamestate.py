@@ -47,7 +47,9 @@ class GameState:
         self._hint_used = not conditions.has_hint
         self.time_left = conditions.difficulty.time_limit
 
-        self.word = self._get_word(conditions.categories, conditions.difficulty.letters_to_guess)
+        self.word = self._get_word(
+            conditions.categories, conditions.difficulty.letters_to_guess
+        )
         self._left_to_guess = len(self.word)
 
         self._last_measured_time = datetime.datetime.now()
@@ -103,11 +105,9 @@ class GameState:
             if dict_ul is not None:
                 words_with_matching_ul += dict_ul
 
-        if len(words_with_matching_ul) == 0:
-            print("[err] no words with given unique letters found in dicts!")
-            print("[err] using default word")
-            print("[dbg] guessed word: СЛОВАРИ")  # dev: временное решение
-            return "СЛОВАРИ"  
+        # if len(words_with_matching_ul) == 0:
+        #     # этого не должно произойти, если прогнать тесты перед запуском
+        #     raise ImportError
 
         word = choice(words_with_matching_ul)
         print(f"[dbg] guessed word: {word}")
