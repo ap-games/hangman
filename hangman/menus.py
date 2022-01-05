@@ -39,6 +39,10 @@ class Images(Enum):
     GALLOWS = "image_gallows"
 
 
+class Frames(Enum):
+    GUESSED_WORD = "frame_guessed_word"
+
+
 class Menus:
     """
     Создает и хранит в себе игровые меню
@@ -72,12 +76,21 @@ class Menus:
         self.game.resize(width, height)
         self.pause.resize(width, height)
 
-    def setup_game(self, conditions: Conditions):
+    def setup_game(self, conditions: Conditions, word: str):
         """
         Подготавливает игровое поле к началу новой игры
         """
 
         self.update_gallows(conditions.difficulty.lifes)
+
+        guessed_word = self.game.get_widget(Frames.GUESSED_WORD.value)
+        
+        old_letters_labels = guessed_word.get_widgets()
+        for letter_label in old_letters_labels:
+            self.game.remove_widget(letter_label)
+
+        for idx, letter in enumerate(word):
+            guessed_word.pack(self.game.add.label(title="_", label_id=f"{letter}_{idx}"), align=pgm.locals.ALIGN_CENTER)
 
         timer = self.game.get_widget(Labels.TIMER.value)
         timer.hide()
@@ -89,6 +102,15 @@ class Menus:
         hint.hide()
         if conditions.has_hint:
             hint.show()
+
+    def reveal_letter(self, letter: str):
+        guessed_word = self.game.get_widget(Frames.GUESSED_WORD.value)
+        letters_labels = guessed_word.get_widgets()
+
+        for letter_label in letters_labels:
+            label_id = letter_label.get_id()
+            if letter in label_id:
+                letter_label.set_title(letter)
 
     def update_gallows(self, lifes: int):
         gallows = self.game.get_widget(Images.GALLOWS.value)
@@ -221,6 +243,8 @@ class Menus:
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
         game.add.image(ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value)
+
+        game.add.frame_h(40 * 13, 50, padding=0, frame_id=Frames.GUESSED_WORD.value)
 
         upper_row = game.add.frame_h(40 * 12, 50, padding=0)
         middle_row = game.add.frame_h(40 * 11, 50, padding=0)

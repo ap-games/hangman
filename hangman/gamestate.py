@@ -27,7 +27,6 @@ class GameState:
     def __init__(self):
         self.time_left: datetime.timedelta = 0
         self.word: str = ""
-        self.proc_letter: str = "-"
         self.processed_letters: dict(str, bool) = dict.fromkeys(ALPHABET, False)
 
         self._lifes: int = 0
