@@ -3,7 +3,7 @@ from typing import Tuple
 import datetime
 
 from hangman.events import *
-from hangman.gamestate import GameState
+from hangman.gamestate import ALPHABET, GameState
 from hangman.conditions import (
     ALL_CATEGORIES,
     NAME_TO_CAT,
@@ -81,27 +81,39 @@ class Menus:
         Подготавливает игровое поле к началу новой игры
         """
 
+        # Нарисовать основание виселицы
         self.update_gallows(conditions.max_lifes)
 
-        guessed_word = self.game.get_widget(Frames.GUESSED_WORD.value)
-        
+        guessed_word = self.game.get_widget(Frames.GUESSED_WORD.value)        
+
+        # Убрать старое угадываемое слово
         old_letters_labels = guessed_word.get_widgets()
         for letter_label in old_letters_labels:
             self.game.remove_widget(letter_label)
 
+        # Подготовить новое угадываемое слово
         for idx, letter in enumerate(word):
             guessed_word.pack(self.game.add.label(title="_", label_id=f"{letter}_{idx}"), align=pgm.locals.ALIGN_CENTER)
 
+        # Подготовить таймер
         timer = self.game.get_widget(Labels.TIMER.value)
         timer.hide()
         if conditions.has_timer:
             timer.show()
         timer.set_title(str(conditions.difficulty.time_limit))
 
+        # Подготовить кнопку подсказки
         hint = self.game.get_widget(Buttons.HINT.value)
         hint.hide()
         if conditions.has_hint:
             hint.show()
+
+        # Подготовить клавиатуру (сделать все кнопки рабочими)
+        color = pgm.themes.THEME_DEFAULT.widget_font_color
+        for letter in ALPHABET:
+            letter_button = self.game.get_widget(f"key_{letter}")
+            letter_button.update_font({"color": color})
+            letter_button.update_callback(lambda l=letter: post_letter_chosen(l))
 
     def reveal_letter(self, letter: str):
         guessed_word = self.game.get_widget(Frames.GUESSED_WORD.value)
@@ -111,6 +123,12 @@ class Menus:
             label_id = letter_label.get_id()
             if letter in label_id:
                 letter_label.set_title(letter)
+
+    def block_letter(self, letter: str):
+        color = pgm.themes.THEME_DEFAULT.readonly_color
+        letter_button = self.game.get_widget(f"key_{letter}")
+        letter_button.update_callback(do_nothing)
+        letter_button.update_font({"color": color})
 
     def update_gallows(self, lifes: int):
         gallows = self.game.get_widget(Images.GALLOWS.value)
@@ -261,6 +279,7 @@ class Menus:
                         title=letter,
                         action=lambda l=letter: post_letter_chosen(l),
                         cursor=pgm.locals.CURSOR_HAND,
+                        button_id=f"key_{letter}"
                     )
                 )
 
