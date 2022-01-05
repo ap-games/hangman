@@ -147,7 +147,7 @@ class Menus:
 
     def update_timer(self, time_left: datetime.timedelta):
         timer = self.game.get_widget(Labels.TIMER.value)
-        timer.set_title(str(time_left.seconds))
+        timer.set_title(f"{time_left.seconds//60}:{time_left.seconds%60}")
 
     def hide_hint(self):
         self.game.get_widget(Buttons.HINT.value).hide()
@@ -272,6 +272,8 @@ class Menus:
     def _create_game(self):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width, theme=self.theme)
 
+        game.add.label("", label_id=Labels.TIMER.value)
+
         game.add.image(ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value)
 
         game.add.frame_h(40 * 13, 50, padding=0, frame_id=Frames.GUESSED_WORD.value)
@@ -294,7 +296,6 @@ class Menus:
                 )
 
         game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
-        game.add.label("", label_id=Labels.TIMER.value)
         game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
 
         return game
