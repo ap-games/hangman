@@ -56,8 +56,8 @@ class Game:
 
         elif event.type == HINT:
             print("[dbg] on_event(): HINT")
-            self._game_state.get_hint()
-            self._menus.hide_hint()
+            self._menus.show_hint(self._game_state)
+            self._menus.hide_hint_button()
 
         elif event.type == PAUSE:
             print("[dbg] on_event(): PAUSE")
@@ -97,7 +97,7 @@ class Game:
 
         elif event.type == HIDE_HINT:
             print("[dbg] on_event(); HIDE_HINT")
-            self._menus.hide_hint()
+            self._menus.hide_hint_button()
 
         elif event.type == LETTER_CHOSEN:
             print(f"[dbg] on_event(); LETTER_CHOSEN {event.letter}")

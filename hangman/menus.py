@@ -125,6 +125,17 @@ class Menus:
             letter_button.update_font({"color": color})
             letter_button.update_callback(lambda l=letter: post_letter_chosen(l))
 
+    def show_hint(self, game_state: GameState):
+        game_state.use_hint()
+        hint_letter = ""  # буква, которую нужно подсветить
+        for letter in game_state.word:
+            if not game_state.processed_letters.get(letter):
+                hint_letter = letter
+        
+        green = (28, 198, 108)  # TODO: в идеале хранить где-то в теме
+        letter_button = self.game.get_widget(f"key_{letter}")
+        letter_button.update_font({"color": green})
+
     def reveal_letter(self, letter: str):
         guessed_word = self.game.get_widget(Frames.GUESSED_WORD.value)
         letters_labels = guessed_word.get_widgets()
@@ -149,7 +160,7 @@ class Menus:
         timer = self.game.get_widget(Labels.TIMER.value)
         timer.set_title(f"{time_left.seconds//60}:{time_left.seconds%60}")
 
-    def hide_hint(self):
+    def hide_hint_button(self):
         self.game.get_widget(Buttons.HINT.value).hide()
 
     def block_start(self):

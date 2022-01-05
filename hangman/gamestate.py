@@ -38,6 +38,9 @@ class GameState:
     def lifes(self) -> int:
         return self._lifes
 
+    def use_hint(self):
+        self._hint_used = False
+
     def new_game(self, conditions: Conditions):
         """
         Приводит GameState к исходному состоянию для начала новой игры.
@@ -111,15 +114,6 @@ class GameState:
         word = choice(words_with_matching_ul)
         print(f"[dbg] guessed word: {word}")
         return word
-
-    def get_hint(self):
-        if not self._hint_used and self._left_to_guess > 1:
-            for letter in self.word:
-                if not self.processed_letters.get(letter):
-                    print(f"Hint: {letter}")
-                    self.process_letter(letter)
-                    self._hint_used = True
-                    return
 
     def process_letter(self, letter: str):
         if self.processed_letters[letter]:
