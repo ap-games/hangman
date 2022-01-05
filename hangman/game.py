@@ -103,6 +103,7 @@ class Game:
             print(f"[dbg] on_event(); LETTER_CHOSEN {event.letter}")
             self._game_state.process_letter(event.letter)
             self._menus.reveal_letter(event.letter)
+            self._menus.block_letter(event.letter)
 
         elif event.type == CHANGE_CONDITIONS:
             print("[dbg] on_event(); CHANGE_CONDITIONS")
