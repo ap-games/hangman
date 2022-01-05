@@ -35,6 +35,10 @@ class GameState:
         self._hint_used: bool = False
         self._last_measured_time: datetime.datetime = 0
 
+    @property
+    def lifes(self) -> int:
+        return self._lifes
+
     def new_game(self, conditions: Conditions):
         """
         Приводит GameState к исходному состоянию для начала новой игры.
@@ -136,6 +140,7 @@ class GameState:
 
         if letter not in self.word:
             self._lifes -= 1
+            post_wrong_guess()
         else:
             self._left_to_guess -= self.word.count(letter)
 

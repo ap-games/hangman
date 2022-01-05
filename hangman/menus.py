@@ -3,7 +3,7 @@ from typing import Tuple
 import datetime
 
 from hangman.events import *
-from hangman.gamestate import GameState, ALPHABET
+from hangman.gamestate import GameState
 from hangman.conditions import (
     ALL_CATEGORIES,
     NAME_TO_CAT,
@@ -12,7 +12,12 @@ from hangman.conditions import (
     Difficulties, Difficulty,
 )
 from hangman.statistics import Statistics
+from pathlib import Path
+import os, os.path
 
+CUR_FILE_PATH = Path(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = CUR_FILE_PATH.parent
+ASSETS_DIR = ROOT_DIR / "assets"
 
 class Buttons(Enum):
     HINT = "hint_button"
@@ -26,6 +31,9 @@ class Labels(Enum):
     LOST = "label_lost"
     WIN_RATE = "label_win_rate"
     TIMER = "label_timer"
+
+class Images(Enum):
+    GALLOWS = "image_gallows"
 
 
 class Menus:
@@ -61,21 +69,28 @@ class Menus:
         self.game.resize(width, height)
         self.pause.resize(width, height)
 
-    def setup_game(self, conditions: Conditions, game_state: GameState):
+    def setup_game(self, conditions: Conditions):
         """
         Подготавливает игровое поле к началу новой игры
         """
+
+        self.update_gallows(conditions.difficulty.lifes)
 
         timer = self.game.get_widget(Labels.TIMER.value)
         timer.hide()
         if conditions.has_timer:
             timer.show()
-        timer.set_title(str(game_state.time_left))
+        timer.set_title(str(conditions.difficulty.time_limit))
 
         hint = self.game.get_widget(Buttons.HINT.value)
         hint.hide()
         if conditions.has_hint:
             hint.show()
+
+    def update_gallows(self, lifes: int):
+        gallows = self.game.get_widget(Images.GALLOWS.value)
+        gallows_image = pgm.BaseImage(ASSETS_DIR / f"gallows_{lifes}.png")
+        gallows.set_image(gallows_image)
 
     def update_timer(self, time_left: datetime.timedelta):
         timer = self.game.get_widget(Labels.TIMER.value)
@@ -200,6 +215,8 @@ class Menus:
     def _create_game(self):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
+        game.add.image(ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value)
+
         upper_row = game.add.frame_h(40 * 12, 50, padding=0)
         middle_row = game.add.frame_h(40 * 11, 50, padding=0)
         bottom_row = game.add.frame_h(40 * 9, 50, padding=0)
@@ -227,6 +244,9 @@ class Menus:
         defeat = pgm.menu.Menu(
             title="Вы проиграли!", height=self._height, width=self._width
         )
+
+        defeat.add.image(ASSETS_DIR / "gallows_0.png")
+
         defeat.add.button("Назад", post_back_to_main)
         return defeat
 
