@@ -81,7 +81,7 @@ class Menus:
         Подготавливает игровое поле к началу новой игры
         """
 
-        self.update_gallows(conditions.difficulty.lifes)
+        self.update_gallows(conditions.max_lifes)
 
         guessed_word = self.game.get_widget(Frames.GUESSED_WORD.value)
         

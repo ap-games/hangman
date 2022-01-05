@@ -42,7 +42,7 @@ class GameState:
         """
         Приводит GameState к исходному состоянию для начала новой игры.
         """
-        self._lifes = conditions.difficulty.lifes
+        self._lifes = conditions.max_lifes
         self._hint_used = not conditions.has_hint
         self.time_left = conditions.difficulty.time_limit
 

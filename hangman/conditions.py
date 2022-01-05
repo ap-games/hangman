@@ -12,7 +12,6 @@ class Difficulty(NamedTuple):
 
     name: str
     translation: str
-    lifes: int
     time_limit: datetime.timedelta
     letters_to_guess: range
 
@@ -21,21 +20,18 @@ Difficulties = {
     "EASY": Difficulty(
         name="EASY",
         translation="Легко",
-        lifes=8,
         time_limit=datetime.timedelta(minutes=3),
         letters_to_guess=range(3, 5),
     ),
     "MEDIUM": Difficulty(
         name="MEDIUM",
         translation="Средне",
-        lifes=8,
         time_limit=datetime.timedelta(minutes=2, seconds=30),
         letters_to_guess=range(5, 7),
     ),
     "HARD": Difficulty(
         name="HARD",
         translation="Сложно",
-        lifes=8,
         time_limit=datetime.timedelta(minutes=2),
         letters_to_guess=range(7, 10),
     ),
@@ -71,6 +67,7 @@ class Conditions:
         self._categories = categories
         self._has_timer = has_timer
         self._has_hint = has_hint
+        self._max_lifes = 8
 
     def handle_action(self, action: ConditionsChange, value: Any):
         if action == ConditionsChange.DIFFICULTY:
@@ -97,6 +94,10 @@ class Conditions:
         if len(self.categories) == 0:
             # если убрали все категории, запретить старт
             post_block_start()
+
+    @property
+    def max_lifes(self) -> int:
+        return self._max_lifes
 
     @property
     def categories(self) -> set[Categories]:
