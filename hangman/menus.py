@@ -1,11 +1,31 @@
-from os import stat
 import pygame_menu as pgm
 from typing import Tuple
+import datetime
 
 from hangman.events import *
 from hangman.gamestate import GameState, ALPHABET
-from hangman.conditions import Conditions, Categories, Difficulty
+from hangman.conditions import (
+    ALL_CATEGORIES,
+    NAME_TO_CAT,
+    Conditions,
+    Categories,
+    Difficulties, Difficulty,
+)
 from hangman.statistics import Statistics
+
+
+class Buttons(Enum):
+    HINT = "hint_button"
+    PAUSE = "pause_button"
+    START = "start_button"
+
+
+class Labels(Enum):
+    PLAYED = "label_played"
+    WON = "label_won"
+    LOST = "label_lost"
+    WIN_RATE = "label_win_rate"
+    TIMER = "label_timer"
 
 
 class Menus:
@@ -14,23 +34,21 @@ class Menus:
     """
 
     def __init__(
-        self,
-        width: int,
-        height: int,
-        conds: Conditions,
-        game_state: GameState,
-        stats: Statistics,
+            self,
+            width: int,
+            height: int,
+            conditions: Conditions,
+            stats: Statistics,
     ):
         self._height = height
         self._width = width
 
-        self.cond = conds
-
         self.victory = self._create_victory()
         self.defeat = self._create_defeat()
         self.stats = self._create_stats(stats)
-        self.game = self._create_game(game_state)
-        self.settings = self._create_settings(conds, game_state)
+        self.pause = self._create_pause()
+        self.game = self._create_game()
+        self.settings = self._create_settings(conditions)
         self.main = self._create_main(self.settings, self.stats)
 
     def resize(self, width: int, height: int):
@@ -42,112 +60,89 @@ class Menus:
         self.defeat.resize(width, height)
         self.game.resize(width, height)
 
+    def setup_game(self, conditions: Conditions, game_state: GameState):
+        """
+        Подготавливает игровое поле к началу новой игры
+        """
+
+        timer = self.game.get_widget(Labels.TIMER.value)
+        timer.hide()
+        if conditions.has_timer:
+            timer.show()
+        timer.set_title(str(game_state.time_left))
+
+        hint = self.game.get_widget(Buttons.HINT.value)
+        hint.hide()
+        if conditions.has_hint:
+            hint.show()
+
+    def update_timer(self, time_left: datetime.timedelta):
+        timer = self.game.get_widget(Labels.TIMER.value)
+        timer.set_title(str(time_left.seconds))
+
+    def hide_hint(self):
+        self.game.get_widget(Buttons.HINT.value).hide()
+
+    def block_start(self):
+        color = pgm.themes.THEME_DEFAULT.readonly_color
+
+        start_button = self.settings.get_widget(Buttons.START.value)
+        start_button.set_title("Продолжить (выберите категории)")
+        start_button.update_callback(do_nothing)
+        start_button.update_font({"color": color, "selected_color": color})
+
+    def allow_start(self):
+        color = pgm.themes.THEME_DEFAULT.widget_font_color
+        selected_color = pgm.themes.THEME_DEFAULT.selection_color
+
+        start_button = self.settings.get_widget(Buttons.START.value)
+        start_button.set_title("Продолжить")
+        start_button.update_callback(post_start_game)
+        start_button.update_font({"color": color, "selected_color": selected_color})
+
+    def update_stats(self, stats: Statistics):
+        played_label = self.stats.get_widget(Labels.PLAYED.value)
+        won_label = self.stats.get_widget(Labels.WON.value)
+        lost_label = self.stats.get_widget(Labels.LOST.value)
+        win_rate_label = self.stats.get_widget(Labels.WIN_RATE.value)
+
+        played_label.set_title(f"Сыграно игр: {stats.played}")
+        lost_label.set_title(f"Поражений: {stats.played - stats.won}")
+        won_label.set_title(f"Побед: {stats.won}")
+        win_rate_label.set_title(f"Винрейт: {stats.win_rate}")
+
+        win_rate_label.show()
+        if stats.win_rate is None:
+            win_rate_label.hide()
+
     def _create_stats(self, stats: Statistics):
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width)
 
-        stat.add.label(f"Сыграно игр: {stats.played}", label_id="played_label")
-        stat.add.label(f"Побед: {stats.won}", label_id="won_label")
-        stat.add.label(f"Поражений: {stats.played - stats.won}", label_id="lost_label")
-        winrate_label = stat.add.label(f"Винрейт: {stats.win_rate}", label_id="winrate_label")
+        stat.add.label(f"Сыграно игр: {stats.played}", label_id=Labels.PLAYED.value)
+        stat.add.label(f"Побед: {stats.won}", label_id=Labels.WON.value)
+        stat.add.label(
+            f"Поражений: {stats.played - stats.won}", label_id=Labels.LOST.value
+        )
+        win_rate_label = stat.add.label(
+            f"Винрейт: {stats.win_rate}", label_id=Labels.WIN_RATE.value
+        )
         if stats.win_rate is None:
-            winrate_label.hide()
+            win_rate_label.hide()
 
         stat.add.button("Назад", pgm.events.BACK)
         stat.add.button("Сбросить", post_clear_stats)
         return stat
 
-    def update_stats(self, stats: Statistics):
-        self.stats.get_widget("played_label").set_title(f"Сыграно игр: {stats.played}")
-        self.stats.get_widget("won_label").set_title(f"Побед: {stats.played}")
-        self.stats.get_widget("lost_label").set_title(f"Поражений: {stats.played}")
-
-        winrate_label = self.stats.get_widget("winrate_label")
-        winrate_label.set_title(f"Винрейт: {stats.win_rate}")
-
-        if stats.win_rate is None:
-            winrate_label.hide()
-        else:
-            winrate_label.show()
-            
-        return
-
-    def _change_difficulty(self, value: Tuple[any, int], difficulty: str) -> None:
-        selected, index = value
-        self.cond.set_difficulty(Difficulty(index + 1))
-
-    def _change_hint(self, value: Tuple, enabled: bool) -> None:
-        if enabled:
-            self.cond.set_cond_hint(True)
-        else:
-            self.cond.set_cond_hint(False)
-
-    def _change_timer(self, value: Tuple, enabled: bool) -> None:
-        if enabled:
-            self.cond.set_cond_timer(True)
-        else:
-            self.cond.set_cond_timer(False)
-
-    def _change_category(self, value: Tuple, enabled: str) -> None:
-        selected, index = value
-        if enabled == "ALL":
-            self.settings.get_widget("select_ANIMALS").set_value("вкл")
-            self.cond.add_category(Categories.ANIMALS)
-            self.settings.get_widget("select_BIRDS").set_value("вкл")
-            self.cond.add_category(Categories.BIRDS)
-            self.settings.get_widget("select_CHEMISTRY").set_value("вкл")
-            self.cond.add_category(Categories.CHEMISTRY)
-            self.settings.get_widget("select_COUNTRIES").set_value("вкл")
-            self.cond.add_category(Categories.COUNTRIES)
-            self.settings.get_widget("select_FOOD").set_value("вкл")
-            self.cond.add_category(Categories.FOOD)
-            self.settings.get_widget("select_FRUITS").set_value("вкл")
-            self.cond.add_category(Categories.FRUITS)
-        elif enabled == "NONE":
-            # self.cond.categories.clear()
-            self.settings.get_widget("select_ANIMALS").set_value("выкл")
-            self.cond.delete_category(Categories.ANIMALS)
-            self.settings.get_widget("select_BIRDS").set_value("выкл")
-            self.cond.delete_category(Categories.BIRDS)
-            self.settings.get_widget("select_CHEMISTRY").set_value("выкл")
-            self.cond.delete_category(Categories.CHEMISTRY)
-            self.settings.get_widget("select_COUNTRIES").set_value("выкл")
-            self.cond.delete_category(Categories.COUNTRIES)
-            self.settings.get_widget("select_FOOD").set_value("выкл")
-            self.cond.delete_category(Categories.FOOD)
-            self.settings.get_widget("select_FRUITS").set_value("выкл")
-            self.cond.delete_category(Categories.FRUITS)
-        elif enabled == "ANIMALS":
-            self.cond.add_category(Categories.ANIMALS)
-        elif enabled == "NOT_ANIMALS":
-            self.cond.delete_category(Categories.ANIMALS)
-        elif enabled == "BIRDS":
-            self.cond.add_category(Categories.BIRDS)
-        elif enabled == "NOT_BIRDS":
-            self.cond.delete_category(Categories.BIRDS)
-        elif enabled == "CHEMISTRY":
-            self.cond.add_category(Categories.CHEMISTRY)
-        elif enabled == "NOT_CHEMISTRY":
-            self.cond.delete_category(Categories.CHEMISTRY)
-        elif enabled == "COUNTRIES":
-            self.cond.add_category(Categories.COUNTRIES)
-        elif enabled == "NOT_COUNTRIES":
-            self.cond.delete_category(Categories.COUNTRIES)
-        elif enabled == "FOOD":
-            self.cond.add_category(Categories.FOOD)
-        elif enabled == "NOT_FOOD":
-            self.cond.delete_category(Categories.FOOD)
-        elif enabled == "FRUITS":
-            self.cond.add_category(Categories.FRUITS)
-        elif enabled == "NOT_FRUITS":
-            self.cond.delete_category(Categories.FRUITS)
-
-    def _create_settings(self, cond, game_state):
+    def _create_settings(self, conditions: Conditions):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width
         )
         settings.add.selector(
             "",
-            [("Легко", "EASY"), ("Средне", "MEDIUM"), ("Сложно", "HARD")],
+            [
+                (difficulty.translation, difficulty)
+                for difficulty in Difficulties.values()
+            ],
             onchange=self._change_difficulty,
             selector_id="select_difficulty",
         )
@@ -170,81 +165,56 @@ class Menus:
             onchange=self._change_category,
             selector_id="select_ALL",
         )
-        settings.add.selector(
-            "Животные",
-            items=[("вкл", "ANIMALS"), ("выкл", "NOT_ANIMALS")],
-            onchange=self._change_category,
-            selector_id="select_ANIMALS",
-        )
-        settings.add.selector(
-            "Птицы",
-            items=[("вкл", "BIRDS"), ("выкл", "NOT_BIRDS")],
-            onchange=self._change_category,
-            selector_id="select_BIRDS",
-        )
-        settings.add.selector(
-            "Химия",
-            items=[("вкл", "CHEMISTRY"), ("выкл", "NOT_CHEMISTRY")],
-            onchange=self._change_category,
-            selector_id="select_CHEMISTRY",
-        )
-        settings.add.selector(
-            "Страны",
-            items=[("вкл", "COUNTRIES"), ("выкл", "NOT_COUNTRIES")],
-            onchange=self._change_category,
-            selector_id="select_COUNTRIES",
-        )
-        settings.add.selector(
-            "Еда",
-            items=[("вкл", "FOOD"), ("выкл", "NOT_FOOD")],
-            onchange=self._change_category,
-            selector_id="select_FOOD",
-        )
-        settings.add.selector(
-            "Фрукты",
-            items=[("вкл", "FRUITS"), ("выкл", "NOT_FRUITS")],
-            onchange=self._change_category,
-            selector_id="select_FRUITS",
-        )
 
-        game = self._create_game(game_state)
+        for category in Categories:
+            settings.add.selector(
+                category.value,
+                items=[("вкл", category.name), ("выкл", f"NOT_{category.name}")],
+                onchange=self._change_category,
+                selector_id=f"select_{category.name}",
+            )
 
-        settings.add.button("Продолжить", post_start_game)
+        if len(conditions.categories) == 0:
+            post_block_start()
+
+        settings.add.button("Продолжить", post_start_game, button_id=Buttons.START.value)
         settings.add.button("Назад", pgm.events.BACK)
-
         return settings
 
     def _create_main(self, settings, stats):
         main = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
         main.add.button("Играть", settings)
-        main.add.button("Статистика", stats, accept_kwargs=True)
+        main.add.button("Статистика", stats)
         main.add.button("Выйти", pgm.events.EXIT)
         return main
 
-    def _create_game(self, game_state):
+    def _create_pause(self):
+        pause = pgm.menu.Menu(title="Пауза", height=self._height, width=self._width)
+
+        pause.add.button("Продолжить", post_continue)
+        pause.add.button("Закончить игру", post_back_to_main)
+
+        return pause
+
+    def _create_game(self):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
-        buttons = lambda x: game.add.button(
-            x, lambda: game_state.update_state(x), cursor=pgm.locals.CURSOR_HAND
-        )
         frame1 = game.add.frame_h(40*12, 50, backgroud_color=(50, 50, 110), padding=0)
         frame2 = game.add.frame_h(40 * 11, 50, backgroud_color=(50, 50, 110), padding=0)
         frame3 = game.add.frame_h(40 * 9, 50, backgroud_color=(50, 50, 110), padding=0)
-        for i in range(12):
-            frame1.pack(buttons(ALPHABET[i]))
-        for i in range(12, 12 + 11):
-            frame2.pack(buttons(ALPHABET[i]))
-        for i in range(23, 23 + 9):
-            frame3.pack(buttons(ALPHABET[i]))
-        self._add_hint_button(game, self.cond.hint)
-        game.add.button("Назад", post_back_to_main)
-        return game
 
-    def _add_hint_button(self, game, hint):
-        if hint == False:
-            return
-        game.add.button("Подсказка", post_hint)
-        return
+        for i in range(12):
+            frame1.pack(game.add.button(title=ALPHABET[i], action=lambda l=ALPHABET[i]: post_letter_chosen(l), cursor=pgm.locals.CURSOR_HAND))
+        for i in range(12, 12 + 11):
+            frame2.pack(game.add.button(title=ALPHABET[i], action=lambda l=ALPHABET[i]: post_letter_chosen(l), cursor=pgm.locals.CURSOR_HAND))
+        for i in range(23, 23 + 9):
+            frame3.pack(game.add.button(title=ALPHABET[i], action=lambda l=ALPHABET[i]: post_letter_chosen(l), cursor=pgm.locals.CURSOR_HAND))
+
+        game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
+        game.add.label("", label_id=Labels.TIMER.value)
+        game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
+
+        return game
 
     def _create_victory(self):
         victory = pgm.menu.Menu(
@@ -259,3 +229,40 @@ class Menus:
         )
         defeat.add.button("Назад", post_back_to_main)
         return defeat
+
+    # --- onchange methods ---
+    @staticmethod
+    def _change_difficulty(_: Tuple[any, int], difficulty: Difficulty) -> None:
+        post_change_conditions(ConditionsChange.DIFFICULTY, difficulty)
+
+    @staticmethod
+    def _change_hint(_: Tuple, has_hint: bool) -> None:
+        post_change_conditions(ConditionsChange.HINT, has_hint)
+
+    @staticmethod
+    def _change_timer(_: Tuple, has_timer: bool) -> None:
+        post_change_conditions(ConditionsChange.TIMER, has_timer)
+
+    def _change_category(self, _: Tuple, category_name: str) -> None:
+        if category_name == "ALL":
+            for category in Categories:
+                self.settings.get_widget(f"select_{category.name}").set_value("вкл")
+                post_change_conditions(ConditionsChange.ADD_CATEGORY, category)
+        elif category_name == "NONE":
+            for category in Categories:
+                self.settings.get_widget(f"select_{category.name}").set_value("выкл")
+                post_change_conditions(ConditionsChange.REMOVE_CATEGORY, category)
+        elif NAME_TO_CAT.get(category_name) in ALL_CATEGORIES:
+            category = NAME_TO_CAT[category_name]
+            post_change_conditions(ConditionsChange.ADD_CATEGORY, category)
+        elif NAME_TO_CAT.get(category_name[4:]) in ALL_CATEGORIES:
+            category = NAME_TO_CAT[category_name[4:]]
+            post_change_conditions(ConditionsChange.REMOVE_CATEGORY, category)
+
+
+def do_nothing():
+    """
+    Функция которая не делает ничего.
+    Используется как callback для блокировки кнопок
+    """
+    pass

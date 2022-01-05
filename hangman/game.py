@@ -5,7 +5,7 @@ from hangman.events import *
 from hangman.statistics import Statistics
 from hangman.menus import Menus
 from hangman.gamestate import GameState
-from hangman.conditions import *
+from hangman.conditions import Conditions, Difficulties, ALL_CATEGORIES
 
 
 class Game:
@@ -21,17 +21,16 @@ class Game:
 
         self._game_state = GameState()
         self._stats = Statistics(stat_file)
-        self._cond = Conditions(
-            difficulty=Difficulty.EASY,
-            categories=ALL_CATEGORIES,
-            cond_hint=False,
-            cond_timer=False,
+        self._conditions = Conditions(
+            difficulty=Difficulties["EASY"],
+            categories=set(ALL_CATEGORIES),
+            has_hint=True,
+            has_timer=True,
         )
         self._menus = Menus(
             width=self._width,
             height=self._height,
-            conds=self._cond,
-            game_state=self._game_state,
+            conditions=self._conditions,
             stats=self._stats,
         )
         self._current_menu = self._menus.main
@@ -55,11 +54,18 @@ class Game:
             self._menus.update_stats(self._stats)
 
         elif event.type == HINT:
-            self._menus.game_state.get_hint()
             print("[dbg] on_event(): HINT")
+            self._game_state.get_hint()
+            self._menus.hide_hint()
+
+        elif event.type == PAUSE:
+            print("[dbg] on_event(): PAUSE")
+            self._current_menu = self._menus.pause
 
         elif event.type == CONTINUE:
             print("[dbg] on_event(): CONTINUE")
+            self._game_state.unpause()
+            self._current_menu = self._menus.game
 
         elif event.type == LOSE:
             print("[dbg] on_event(): LOSE")
@@ -68,32 +74,58 @@ class Game:
             self._current_menu = self._menus.defeat
 
         elif event.type == WIN:
+            print("[dbg] on_event(): WIN")
             self._stats.played += 1
             self._stats.won += 1
             self._menus.update_stats(self._stats)
-            print("[dbg] on_event(): WIN")
             self._current_menu = self._menus.victory
 
         elif event.type == START_GAME:
             print("[dbg] on_event(); START_GAME")
-            self._game_state.change_word(self._cond.categories)
-            # dev: если нужно будет после смены слова пересоздать игровое меню
-            # то можно в классе Menus определить фукнцию, которая при вызове извне бы это делала
-            # и вызвать её здесь
+            self._game_state.new_game(self._conditions)
+            self._menus.setup_game(self._conditions, self._game_state)
             self._current_menu = self._menus.game
 
         elif event.type == BACK_TO_MAIN:
-            print("[dbg] on_event(); BACK_FROM_*")
+            print("[dbg] on_event(); BACK_TO_MAIN")
             self._current_menu = self._menus.main
 
+        elif event.type == HIDE_HINT:
+            print("[dbg] on_event(); HIDE_HINT")
+            self._menus.hide_hint()
+
+        elif event.type == LETTER_CHOSEN:
+            print(f"[dbg] on_event(); LETTER_CHOSEN {event.letter}")
+            self._game_state.process_letter(event.letter)
+
+        elif event.type == CHANGE_CONDITIONS:
+            print("[dbg] on_event(); CHANGE_CONDITIONS")
+            action = event.action
+            value = event.value
+            self._conditions.handle_action(action, value)
+
+        elif event.type == BLOCK_START:
+            print("[dbg] on_event(); BLOCK_START")
+            self._menus.block_start()
+
+        elif event.type == ALLOW_START:
+            print("[dbg] on_event(); ALLOW_START")
+            self._menus.allow_start()
+
     def run(self):
+        clock = pg.time.Clock()
+
         while self._running:
             events = pg.event.get()
             for event in events:
                 self.on_event(event)
 
-            if self._running:
-                self._current_menu.update(events)
-                self._current_menu.draw(self._surface)
+            if self._current_menu == self._menus.game and self._conditions.has_timer:
+                self._game_state.update_timer()
+                self._menus.update_timer(self._game_state.time_left)
+
+            self._current_menu.update(events)
+            self._current_menu.draw(self._surface)
 
             pg.display.update()
+            clock.tick(30)

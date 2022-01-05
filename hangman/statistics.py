@@ -22,7 +22,6 @@ class Statistics:
         Считывает статистику из файла
         """
 
-        data = None
         with open(self._filename, "r") as fstat:
             data = fstat.read()
         data = json.loads(data)
