@@ -199,16 +199,15 @@ class Menus:
     def _create_game(self):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width)
 
-        frame1 = game.add.frame_h(40*12, 50, backgroud_color=(50, 50, 110), padding=0)
-        frame2 = game.add.frame_h(40 * 11, 50, backgroud_color=(50, 50, 110), padding=0)
-        frame3 = game.add.frame_h(40 * 9, 50, backgroud_color=(50, 50, 110), padding=0)
+        upper_row = game.add.frame_h(40 * 12, 50, padding=0)
+        middle_row = game.add.frame_h(40 * 11, 50, padding=0)
+        bottom_row = game.add.frame_h(40 * 9, 50, padding=0)
 
-        for i in range(12):
-            frame1.pack(game.add.button(title=ALPHABET[i], action=lambda l=ALPHABET[i]: post_letter_chosen(l), cursor=pgm.locals.CURSOR_HAND))
-        for i in range(12, 12 + 11):
-            frame2.pack(game.add.button(title=ALPHABET[i], action=lambda l=ALPHABET[i]: post_letter_chosen(l), cursor=pgm.locals.CURSOR_HAND))
-        for i in range(23, 23 + 9):
-            frame3.pack(game.add.button(title=ALPHABET[i], action=lambda l=ALPHABET[i]: post_letter_chosen(l), cursor=pgm.locals.CURSOR_HAND))
+        frames = [upper_row, middle_row, bottom_row]
+        qwerty = ["ЙЦУКЕНГШЩЗХЪ", "ФЫВАПРОЛДЖЭ", "ЯЧСМИТЬБЮ"]
+        for frame, row in zip(frames, qwerty):
+            for letter in row:
+                frame.pack(game.add.button(title=letter, action=lambda l=letter: post_letter_chosen(l), cursor=pgm.locals.CURSOR_HAND))
 
         game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
         game.add.label("", label_id=Labels.TIMER.value)
