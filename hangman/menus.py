@@ -199,9 +199,9 @@ class Menus:
     def _create_stats(self, stats: Statistics):
         stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width, theme=self.theme)
 
-        stat.add.label(f"Сыграно игр: {stats.played}", label_id=Labels.PLAYED.value)
-        stat.add.label(f"Побед: {stats.won}", label_id=Labels.WON.value)
-        stat.add.label(
+        played_label = stat.add.label(f"Сыграно игр: {stats.played}", label_id=Labels.PLAYED.value)
+        won_label = stat.add.label(f"Побед: {stats.won}", label_id=Labels.WON.value)
+        lost_label = stat.add.label(
             f"Поражений: {stats.played - stats.won}", label_id=Labels.LOST.value
         )
         win_rate = int(stats.win_rate * 100) if stats.win_rate is not None else 0
@@ -210,9 +210,20 @@ class Menus:
         )
         if stats.win_rate is None:
             win_rate_label.hide()
+        
+        back_button = stat.add.button("Назад", pgm.events.BACK)
+        clear_button = stat.add.button("Сбросить", post_clear_stats)
 
-        stat.add.button("Назад", pgm.events.BACK)
-        stat.add.button("Сбросить", post_clear_stats)
+        stat_frame = stat.add.frame_v(300, 300, padding=0)
+        stat_frame.pack(played_label)
+        stat_frame.pack(won_label)
+        stat_frame.pack(lost_label)
+        stat_frame.pack(win_rate_label)
+
+        buttons_frame = stat.add.frame_h(300, 50, padding=0)
+        buttons_frame.pack(back_button)
+        buttons_frame.pack(clear_button, align=pgm.locals.ALIGN_RIGHT)
+
         return stat
 
     def _create_settings(self, conditions: Conditions):
