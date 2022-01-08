@@ -167,7 +167,6 @@ class Menus:
         color = pgm.themes.THEME_DEFAULT.readonly_color
 
         start_button = self.settings.get_widget(Buttons.START.value)
-        start_button.set_title("Продолжить (выберите категории)")
         start_button.update_callback(do_nothing)
         start_button.update_font({"color": color, "selected_color": color})
 
@@ -176,7 +175,6 @@ class Menus:
         selected_color = pgm.themes.THEME_DEFAULT.selection_color
 
         start_button = self.settings.get_widget(Buttons.START.value)
-        start_button.set_title("Продолжить")
         start_button.update_callback(post_start_game)
         start_button.update_font({"color": color, "selected_color": selected_color})
 
@@ -230,7 +228,9 @@ class Menus:
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width, theme=self.theme
         )
-        settings.add.selector(
+
+        difficulty_label = settings.add.label("Сложность")
+        difficulty_selector = settings.add.selector(
             "",
             [
                 (difficulty.translation, difficulty)
@@ -239,41 +239,71 @@ class Menus:
             onchange=self._change_difficulty,
             selector_id="select_difficulty",
         )
-        settings.add.selector(
-            "Подсказка",
+        delimeter_label = settings.add.label("")
+        additional_label = settings.add.label("Доп. условия")
+        hint_selector = settings.add.selector(
+            "Подсказка: ",
             [("Да", True), ("Нет", False)],
             onchange=self._change_hint,
             selector_id="select_hint",
         )
-        settings.add.selector(
-            "Таймер",
+        timer_selector = settings.add.selector(
+            "Таймер: ",
             [("Да", True), ("Нет", False)],
             onchange=self._change_timer,
             selector_id="select_timer",
         )
-        settings.add.label("Категории")
-        settings.add.selector(
+
+        additional_frame = settings.add.frame_v(width=400, height=400, padding=0)
+        additional_frame.pack(difficulty_label, align=pgm.locals.ALIGN_CENTER)
+        additional_frame.pack(difficulty_selector, align=pgm.locals.ALIGN_CENTER)
+
+        additional_frame.pack(delimeter_label, align=pgm.locals.ALIGN_CENTER)
+        
+        additional_frame.pack(additional_label, align=pgm.locals.ALIGN_CENTER)
+        additional_frame.pack(hint_selector, align=pgm.locals.ALIGN_CENTER)
+        additional_frame.pack(timer_selector, align=pgm.locals.ALIGN_CENTER)
+
+        category_label = settings.add.label("Категории")
+        mult_category_selector = settings.add.selector(
             "",
             items=[("выбрать все", "ALL"), ("убрать все", "NONE")],
             onchange=self._change_category,
             selector_id="select_ALL",
         )
 
+        category_selectors = []
         for category in Categories:
-            settings.add.selector(
-                category.value,
+            category_selector = settings.add.selector(
+                category.value + " ",
                 items=[("вкл", category.name), ("выкл", f"NOT_{category.name}")],
                 onchange=self._change_category,
                 selector_id=f"select_{category.name}",
             )
+            category_selectors.append(category_selector)
 
         if len(conditions.categories) == 0:
             post_block_start()
 
-        settings.add.button(
+        category_frame = settings.add.frame_v(width=400, height=400, padding=0)
+        category_frame.pack(category_label, align=pgm.locals.ALIGN_CENTER)
+        category_frame.pack(mult_category_selector, align=pgm.locals.ALIGN_CENTER)
+        for category_selector in category_selectors:
+            category_frame.pack(category_selector, align=pgm.locals.ALIGN_CENTER)
+
+        conditions_frame = settings.add.frame_h(width=850, height=400, padding=0)
+        conditions_frame.pack(category_frame)
+        conditions_frame.pack(additional_frame, align=pgm.locals.ALIGN_RIGHT)
+
+        start_button = settings.add.button(
             "Продолжить", post_start_game, button_id=Buttons.START.value
         )
-        settings.add.button("Назад", pgm.events.BACK)
+        back_button = settings.add.button("Назад", pgm.events.BACK)
+
+        buttons_frame = settings.add.frame_h(width=400, height=50, padding=0)
+        buttons_frame.pack(start_button)
+        buttons_frame.pack(back_button, align=pgm.locals.ALIGN_RIGHT)
+
         return settings
 
     def _create_main(self, settings, stats):
