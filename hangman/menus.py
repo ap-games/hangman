@@ -36,6 +36,7 @@ class Labels(Enum):
 
 class Images(Enum):
     GALLOWS = "image_gallows"
+    TIMER = "image_timer"
 
 
 class Frames(Enum):
@@ -107,10 +108,10 @@ class Menus:
 
         # Подготовить таймер
         timer = self.game.get_widget(Labels.TIMER.value)
-        timer.hide()
         if conditions.has_timer:
-            timer.show()
-        timer.set_title(str(conditions.difficulty.time_limit))
+            timer.set_title(str(conditions.difficulty.time_limit))
+        else:
+            timer.set_title("--:--")
 
         # Подготовить кнопку подсказки
         hint = self.game.get_widget(Buttons.HINT.value)
@@ -159,7 +160,7 @@ class Menus:
 
     def update_timer(self, time_left: datetime.timedelta):
         timer = self.game.get_widget(Labels.TIMER.value)
-        timer.set_title(f"{time_left.seconds//60}:{time_left.seconds%60}")
+        timer.set_title(f"{time_left.seconds//60}:{time_left.seconds%60:02d}")
 
     def hide_hint_button(self):
         self.game.get_widget(Buttons.HINT.value).hide()
@@ -325,11 +326,15 @@ class Menus:
     def _create_game(self):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width, theme=self.theme)
 
-        game.add.label("", label_id=Labels.TIMER.value)
+        timer_image = game.add.image(ASSETS_DIR / "timer.png", image_id=Images.TIMER.value, align=pgm.locals.ALIGN_CENTER)
+        timer_label = game.add.label("--:--", label_id=Labels.TIMER.value, align=pgm.locals.ALIGN_CENTER)
 
-        game.add.image(ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value)
+        timer_frame = game.add.frame_h(200, 50, padding=0)
+        timer_frame.pack(timer_image, vertical_position=pgm.locals.POSITION_CENTER, align=pgm.locals.ALIGN_CENTER)
+        timer_frame.pack(timer_label, align=pgm.locals.ALIGN_CENTER)
 
-        game.add.frame_h(40 * 13, 50, padding=0, frame_id=Frames.GUESSED_WORD.value)
+        gallow_image = game.add.image(ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value)
+        guessed_word = game.add.frame_h(40 * 13, 50, padding=0, frame_id=Frames.GUESSED_WORD.value)
 
         upper_row = game.add.frame_h(40 * 12, 50, padding=0)
         middle_row = game.add.frame_h(40 * 11, 50, padding=0)
@@ -348,8 +353,15 @@ class Menus:
                     )
                 )
 
-        game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
-        game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
+        keyboard_frame = game.add.frame_v(40*12, 150, padding=0, align=pgm.locals.ALIGN_CENTER)
+        keyboard_frame.pack(upper_row, align=pgm.locals.ALIGN_CENTER)
+        keyboard_frame.pack(middle_row, align=pgm.locals.ALIGN_CENTER)
+        keyboard_frame.pack(bottom_row, align=pgm.locals.ALIGN_CENTER)
+
+        hint_button = game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
+
+
+        pause_button = game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
 
         return game
 
