@@ -131,9 +131,10 @@ class Menus:
         for letter in game_state.word:
             if not game_state.processed_letters.get(letter):
                 hint_letter = letter
+                break
         
         green = (28, 198, 108)  # TODO: в идеале хранить где-то в теме
-        letter_button = self.game.get_widget(f"key_{letter}")
+        letter_button = self.game.get_widget(f"key_{hint_letter}")
         letter_button.update_font({"color": green})
 
     def reveal_letter(self, letter: str):
@@ -259,7 +260,7 @@ class Menus:
         additional_frame.pack(difficulty_selector, align=pgm.locals.ALIGN_CENTER)
 
         additional_frame.pack(delimeter_label, align=pgm.locals.ALIGN_CENTER)
-        
+
         additional_frame.pack(additional_label, align=pgm.locals.ALIGN_CENTER)
         additional_frame.pack(hint_selector, align=pgm.locals.ALIGN_CENTER)
         additional_frame.pack(timer_selector, align=pgm.locals.ALIGN_CENTER)
