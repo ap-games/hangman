@@ -1,5 +1,5 @@
 from hangman.helpers import dbg_log
-from hangman.conditions import ALL_CATEGORIES, Categories, Conditions
+from hangman.conditions import ALL_CATEGORIES, Categories, Conditions, CATEGORY_FILENAME
 from hangman.events import *
 from random import choice
 from itertools import compress
@@ -8,15 +8,6 @@ import os.path
 import json
 
 ALPHABET = list("ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ")
-
-CATEGORY_FILENAME = {
-    Categories.ANIMALS: "animals.txt",
-    Categories.BIRDS: "birds.txt",
-    Categories.CHEMISTRY: "chemistry.txt",
-    Categories.COUNTRIES: "countries.txt",
-    Categories.FOOD: "food.txt",
-    Categories.FRUITS: "fruits.txt",
-}
 
 
 class GameState:

@@ -3,7 +3,7 @@ import os.path
 import json
 from pathlib import Path
 
-from hangman.conditions import Difficulties, Difficulty
+from hangman.conditions import CATEGORY_FILENAME, Difficulties, Difficulty, Categories
 
 
 CUR_FILE_PATH = Path(os.path.dirname(os.path.abspath(__file__)))
@@ -30,6 +30,17 @@ class TestDicts(unittest.TestCase):
                     msg=f"Dict {dict_name} doesn't handle difficulty {difficulty.name} \
                     which wants {difficulty.letters_to_guess} unique letters",
                 )
+
+    def test_dicts_present(self):
+        """
+        Проверяет, что файлы словарей существуют
+        """
+        for category, filename in CATEGORY_FILENAME.items():
+            try:
+                with open(DICT_DIR / filename, "r") as _:
+                    pass
+            except FileNotFoundError:
+                self.fail(f"Not found dict for category {category.name} (filename '{filename}')")
 
 
 def dict_handle_difficulty(dict_name: str, difficulty: Difficulty) -> bool:

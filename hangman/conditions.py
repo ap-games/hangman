@@ -51,6 +51,14 @@ class Categories(Enum):
     FRUITS = "Фрукты"
 
 
+CATEGORY_FILENAME = {
+    Categories.ANIMALS: "animals.txt",
+    Categories.BIRDS: "birds.txt",
+    Categories.CHEMISTRY: "chemistry.txt",
+    Categories.COUNTRIES: "countries.txt",
+    Categories.FOOD: "food.txt",
+    Categories.FRUITS: "fruits.txt",
+}
 ALL_CATEGORIES = [category for category in Categories]
 NAME_TO_CAT = {category.name: category for category in Categories}
 
