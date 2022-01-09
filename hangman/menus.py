@@ -358,7 +358,7 @@ class Menus:
 
         timer_label.set_max_width(200)
 
-        header_frame = game.add.frame_h(500, 50, padding=0, align=ALIGN_RIGHT)
+        header_frame = game.add.frame_h(700, 50, padding=0)
         header_frame.pack(pause_button, align=ALIGN_RIGHT)
         header_frame.pack(timer_label, align=ALIGN_RIGHT)
         header_frame.pack(timer_image, vertical_position=POSITION_CENTER, align=ALIGN_RIGHT)
