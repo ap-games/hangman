@@ -6,7 +6,7 @@ def do_nothing():
     pass
 
 
-DEBUG = True
+DEBUG = False
 
 
 def dbg_log(msg: str):
