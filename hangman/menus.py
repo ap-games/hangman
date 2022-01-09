@@ -1,4 +1,5 @@
 import pygame_menu as pgm
+from pygame_menu.locals import ALIGN_RIGHT, ALIGN_LEFT, ALIGN_CENTER, POSITION_CENTER, CURSOR_HAND
 from typing import Tuple
 import datetime
 
@@ -14,7 +15,7 @@ from hangman.conditions import (
 )
 from hangman.statistics import Statistics
 from pathlib import Path
-import os, os.path
+import os.path
 
 CUR_FILE_PATH = Path(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = CUR_FILE_PATH.parent
@@ -104,7 +105,7 @@ class Menus:
 
         # Подготовить новое угадываемое слово
         for idx, letter in enumerate(word):
-            guessed_word.pack(self.game.add.label(title="_", label_id=f"{letter}_{idx}"), align=pgm.locals.ALIGN_CENTER)
+            guessed_word.pack(self.game.add.label(title="_", label_id=f"{letter}_{idx}"), align=ALIGN_CENTER)
 
         # Подготовить таймер
         timer = self.game.get_widget(Labels.TIMER.value)
@@ -186,27 +187,32 @@ class Menus:
         lost_label = self.stats.get_widget(Labels.LOST.value)
         win_rate_label = self.stats.get_widget(Labels.WIN_RATE.value)
 
-        played_label.set_title(f"Сыграно игр: {stats.played}")
-        lost_label.set_title(f"Поражений: {stats.played - stats.won}")
-        won_label.set_title(f"Побед: {stats.won}")
+        played_label.set_title(f"{stats.played} сыграно игр")
+        lost = stats.played - stats.won
+        lost_label.set_title( f"{lost} поражений")
+        won_label.set_title(f"{stats.won} побед")
 
         win_rate = int(stats.win_rate * 100) if stats.win_rate is not None else 0
-        win_rate_label.set_title(f"Процент побед: {win_rate}%")
+        win_rate_label.set_title(f"{win_rate}% успешных игр")
         win_rate_label.show()
         if stats.win_rate is None:
             win_rate_label.hide()
 
     def _create_stats(self, stats: Statistics):
-        stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width, theme=self.theme)
+        stat = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
 
-        played_label = stat.add.label(f"Сыграно игр: {stats.played}", label_id=Labels.PLAYED.value)
-        won_label = stat.add.label(f"Побед: {stats.won}", label_id=Labels.WON.value)
+        title_label = stat.add.label("Статистика игр")
+        delimiter_label = stat.add.label("")
+
+        played_label = stat.add.label(f"{stats.played} сыграно игр", label_id=Labels.PLAYED.value)
+        won_label = stat.add.label(f"{stats.won} побед", label_id=Labels.WON.value)
+        lost = stats.played - stats.won
         lost_label = stat.add.label(
-            f"Поражений: {stats.played - stats.won}", label_id=Labels.LOST.value
+            f"{lost} поражений", label_id=Labels.LOST.value
         )
         win_rate = int(stats.win_rate * 100) if stats.win_rate is not None else 0
         win_rate_label = stat.add.label(
-            f"Процент побед: {win_rate}%", label_id=Labels.WIN_RATE.value
+            f"{win_rate}% успешных игр", label_id=Labels.WIN_RATE.value
         )
         if stats.win_rate is None:
             win_rate_label.hide()
@@ -214,15 +220,23 @@ class Menus:
         back_button = stat.add.button("Назад", pgm.events.BACK)
         clear_button = stat.add.button("Сбросить", post_clear_stats)
 
-        stat_frame = stat.add.frame_v(300, 300, padding=0)
-        stat_frame.pack(played_label)
-        stat_frame.pack(won_label)
-        stat_frame.pack(lost_label)
-        stat_frame.pack(win_rate_label)
+        frame_max_width = 300
 
-        buttons_frame = stat.add.frame_h(300, 50, padding=0)
+        played_label.set_max_width(frame_max_width)
+        lost_label.set_max_width(frame_max_width)
+        won_label.set_max_width(frame_max_width)
+
+        stat_frame = stat.add.frame_v(frame_max_width, 350, padding=0)
+        stat_frame.pack(title_label, align=ALIGN_CENTER)
+        stat_frame.pack(delimiter_label)
+        stat_frame.pack(played_label, align=ALIGN_CENTER)
+        stat_frame.pack(won_label, align=ALIGN_CENTER)
+        stat_frame.pack(lost_label, align=ALIGN_CENTER)
+        stat_frame.pack(win_rate_label, align=ALIGN_CENTER)
+
+        buttons_frame = stat.add.frame_h(frame_max_width, 50, padding=0)
         buttons_frame.pack(back_button)
-        buttons_frame.pack(clear_button, align=pgm.locals.ALIGN_RIGHT)
+        buttons_frame.pack(clear_button, align=ALIGN_RIGHT)
 
         return stat
 
@@ -257,14 +271,14 @@ class Menus:
         )
 
         additional_frame = settings.add.frame_v(width=400, height=400, padding=0)
-        additional_frame.pack(difficulty_label, align=pgm.locals.ALIGN_CENTER)
-        additional_frame.pack(difficulty_selector, align=pgm.locals.ALIGN_CENTER)
+        additional_frame.pack(difficulty_label, align=ALIGN_CENTER)
+        additional_frame.pack(difficulty_selector, align=ALIGN_CENTER)
 
-        additional_frame.pack(delimeter_label, align=pgm.locals.ALIGN_CENTER)
+        additional_frame.pack(delimeter_label, align=ALIGN_CENTER)
 
-        additional_frame.pack(additional_label, align=pgm.locals.ALIGN_CENTER)
-        additional_frame.pack(hint_selector, align=pgm.locals.ALIGN_CENTER)
-        additional_frame.pack(timer_selector, align=pgm.locals.ALIGN_CENTER)
+        additional_frame.pack(additional_label, align=ALIGN_CENTER)
+        additional_frame.pack(hint_selector, align=ALIGN_CENTER)
+        additional_frame.pack(timer_selector, align=ALIGN_CENTER)
 
         category_label = settings.add.label("Категории")
         mult_category_selector = settings.add.selector(
@@ -288,14 +302,14 @@ class Menus:
             post_block_start()
 
         category_frame = settings.add.frame_v(width=400, height=400, padding=0)
-        category_frame.pack(category_label, align=pgm.locals.ALIGN_CENTER)
-        category_frame.pack(mult_category_selector, align=pgm.locals.ALIGN_CENTER)
+        category_frame.pack(category_label, align=ALIGN_CENTER)
+        category_frame.pack(mult_category_selector, align=ALIGN_CENTER)
         for category_selector in category_selectors:
-            category_frame.pack(category_selector, align=pgm.locals.ALIGN_CENTER)
+            category_frame.pack(category_selector, align=ALIGN_CENTER)
 
         conditions_frame = settings.add.frame_h(width=850, height=400, padding=0)
         conditions_frame.pack(category_frame)
-        conditions_frame.pack(additional_frame, align=pgm.locals.ALIGN_RIGHT)
+        conditions_frame.pack(additional_frame, align=ALIGN_RIGHT)
 
         start_button = settings.add.button(
             "Продолжить", post_start_game, button_id=Buttons.START.value
@@ -304,7 +318,7 @@ class Menus:
 
         buttons_frame = settings.add.frame_h(width=400, height=50, padding=0)
         buttons_frame.pack(start_button)
-        buttons_frame.pack(back_button, align=pgm.locals.ALIGN_RIGHT)
+        buttons_frame.pack(back_button, align=ALIGN_RIGHT)
 
         return settings
 
@@ -319,19 +333,19 @@ class Menus:
         pause = pgm.menu.Menu(title="Пауза", height=self._height, width=self._width, theme=self.theme)
 
         pause.add.button("Продолжить", post_continue)
-        pause.add.button("Закончить игру", post_back_to_main)
+        pause.add.button("Сдаться", post_back_to_main)
 
         return pause
 
     def _create_game(self):
         game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width, theme=self.theme)
 
-        timer_image = game.add.image(ASSETS_DIR / "timer.png", image_id=Images.TIMER.value, align=pgm.locals.ALIGN_CENTER)
-        timer_label = game.add.label("--:--", label_id=Labels.TIMER.value, align=pgm.locals.ALIGN_CENTER)
+        timer_image = game.add.image(ASSETS_DIR / "timer.png", image_id=Images.TIMER.value, align=ALIGN_CENTER)
+        timer_label = game.add.label("--:--", label_id=Labels.TIMER.value, align=ALIGN_CENTER)
 
         timer_frame = game.add.frame_h(200, 50, padding=0)
-        timer_frame.pack(timer_image, vertical_position=pgm.locals.POSITION_CENTER, align=pgm.locals.ALIGN_CENTER)
-        timer_frame.pack(timer_label, align=pgm.locals.ALIGN_CENTER)
+        timer_frame.pack(timer_image, vertical_position=POSITION_CENTER, align=ALIGN_CENTER)
+        timer_frame.pack(timer_label, align=ALIGN_CENTER)
 
         gallow_image = game.add.image(ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value)
         guessed_word = game.add.frame_h(40 * 13, 50, padding=0, frame_id=Frames.GUESSED_WORD.value)
@@ -348,19 +362,17 @@ class Menus:
                     game.add.button(
                         title=letter,
                         action=lambda l=letter: post_letter_chosen(l),
-                        cursor=pgm.locals.CURSOR_HAND,
+                        cursor=CURSOR_HAND,
                         button_id=f"key_{letter}"
                     )
                 )
 
-        keyboard_frame = game.add.frame_v(40*12, 150, padding=0, align=pgm.locals.ALIGN_CENTER)
-        keyboard_frame.pack(upper_row, align=pgm.locals.ALIGN_CENTER)
-        keyboard_frame.pack(middle_row, align=pgm.locals.ALIGN_CENTER)
-        keyboard_frame.pack(bottom_row, align=pgm.locals.ALIGN_CENTER)
+        keyboard_frame = game.add.frame_v(40*12, 150, padding=0, align=ALIGN_CENTER)
+        keyboard_frame.pack(upper_row, align=ALIGN_CENTER)
+        keyboard_frame.pack(middle_row, align=ALIGN_CENTER)
+        keyboard_frame.pack(bottom_row, align=ALIGN_CENTER)
 
         hint_button = game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
-
-
         pause_button = game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
 
         return game
