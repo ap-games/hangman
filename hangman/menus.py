@@ -50,8 +50,7 @@ def create_theme() -> pgm.Theme:
     theme = pgm.themes.THEME_DEFAULT.copy()
 
     # Убрать меню-бар
-    theme.title_bar_style = pgm.widgets.MENUBAR_STYLE_NONE
-    theme.title_font_color = (0, 0, 0, 0)
+    theme.title = False
 
     return theme
 
