@@ -1,4 +1,5 @@
 import pygame_menu as pgm
+from pygame_menu.locals import ALIGN_RIGHT, ALIGN_LEFT, ALIGN_CENTER, POSITION_CENTER, CURSOR_HAND, POSITION_NORTH
 from typing import Tuple
 import datetime
 
@@ -14,11 +15,12 @@ from hangman.conditions import (
 )
 from hangman.statistics import Statistics
 from pathlib import Path
-import os, os.path
+import os.path
 
 CUR_FILE_PATH = Path(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = CUR_FILE_PATH.parent
 ASSETS_DIR = ROOT_DIR / "assets"
+
 
 class Buttons(Enum):
     HINT = "hint_button"
@@ -32,22 +34,25 @@ class Labels(Enum):
     LOST = "label_lost"
     WIN_RATE = "label_win_rate"
     TIMER = "label_timer"
+    GUESSED_WORD = "label_guessed_word"
 
 
 class Images(Enum):
     GALLOWS = "image_gallows"
+    TIMER = "image_timer"
 
 
 class Frames(Enum):
     GUESSED_WORD = "frame_guessed_word"
+    CATEGORIES = "frame_categories"
 
 
 def create_theme() -> pgm.Theme:
     theme = pgm.themes.THEME_DEFAULT.copy()
 
     # Убрать меню-бар
-    theme.title_bar_style = pgm.widgets.MENUBAR_STYLE_NONE
-    theme.title_font_color = (0, 0, 0, 0)
+    theme.title = False
+    theme.title_font_size = 46
 
     return theme
 
@@ -58,11 +63,11 @@ class Menus:
     """
 
     def __init__(
-        self,
-        width: int,
-        height: int,
-        conditions: Conditions,
-        stats: Statistics,
+            self,
+            width: int,
+            height: int,
+            conditions: Conditions,
+            stats: Statistics,
     ):
         self._height = height
         self._width = width
@@ -94,23 +99,36 @@ class Menus:
         # Нарисовать основание виселицы
         self.update_gallows(conditions.max_lifes)
 
-        guessed_word = self.game.get_widget(Frames.GUESSED_WORD.value)        
-
         # Убрать старое угадываемое слово
+        guessed_word = self.game.get_widget(Frames.GUESSED_WORD.value)
+
         old_letters_labels = guessed_word.get_widgets()
         for letter_label in old_letters_labels:
             self.game.remove_widget(letter_label)
 
         # Подготовить новое угадываемое слово
         for idx, letter in enumerate(word):
-            guessed_word.pack(self.game.add.label(title="_", label_id=f"{letter}_{idx}"), align=pgm.locals.ALIGN_CENTER)
+            guessed_word.pack(self.game.add.label(title="_", label_id=f"{letter}_{idx}"), align=ALIGN_CENTER)
+
+        # Убрать старые категории
+        categories_frame = self.game.get_widget(Frames.CATEGORIES.value)
+        old_categories = categories_frame.get_widgets()
+        old_categories = old_categories[1:]  # Игнорируем заголовок
+        for category_label in old_categories:
+            self.game.remove_widget(category_label)
+
+        # Добавить новые категории
+        for category in conditions.categories:
+            category_label = self.game.add.label(category.value)
+            category_label.update_font({"size": 20})
+            categories_frame.pack(category_label, align=ALIGN_CENTER, vertical_position=POSITION_NORTH)
 
         # Подготовить таймер
         timer = self.game.get_widget(Labels.TIMER.value)
-        timer.hide()
         if conditions.has_timer:
-            timer.show()
-        timer.set_title(str(conditions.difficulty.time_limit))
+            timer.set_title(str(conditions.difficulty.time_limit))
+        else:
+            timer.set_title("--:--")
 
         # Подготовить кнопку подсказки
         hint = self.game.get_widget(Buttons.HINT.value)
@@ -125,15 +143,20 @@ class Menus:
             letter_button.update_font({"color": color})
             letter_button.update_callback(lambda l=letter: post_letter_chosen(l))
 
+        # На экране проигрыша обновить загаданное слово
+        guessed_word_label = self.defeat.get_widget(Labels.GUESSED_WORD.value)
+        guessed_word_label.set_title(f"Загаданное слово: {word}")
+
     def show_hint(self, game_state: GameState):
         game_state.use_hint()
         hint_letter = ""  # буква, которую нужно подсветить
         for letter in game_state.word:
             if not game_state.processed_letters.get(letter):
                 hint_letter = letter
-        
-        green = (28, 198, 108)  # TODO: в идеале хранить где-то в теме
-        letter_button = self.game.get_widget(f"key_{letter}")
+                break
+
+        green = (28, 198, 108)
+        letter_button = self.game.get_widget(f"key_{hint_letter}")
         letter_button.update_font({"color": green})
 
     def reveal_letter(self, letter: str):
@@ -158,7 +181,7 @@ class Menus:
 
     def update_timer(self, time_left: datetime.timedelta):
         timer = self.game.get_widget(Labels.TIMER.value)
-        timer.set_title(f"{time_left.seconds//60}:{time_left.seconds%60}")
+        timer.set_title(f"{time_left.seconds // 60}:{time_left.seconds % 60:02d}")
 
     def hide_hint_button(self):
         self.game.get_widget(Buttons.HINT.value).hide()
@@ -167,7 +190,6 @@ class Menus:
         color = pgm.themes.THEME_DEFAULT.readonly_color
 
         start_button = self.settings.get_widget(Buttons.START.value)
-        start_button.set_title("Продолжить (выберите категории)")
         start_button.update_callback(do_nothing)
         start_button.update_font({"color": color, "selected_color": color})
 
@@ -176,7 +198,6 @@ class Menus:
         selected_color = pgm.themes.THEME_DEFAULT.selection_color
 
         start_button = self.settings.get_widget(Buttons.START.value)
-        start_button.set_title("Продолжить")
         start_button.update_callback(post_start_game)
         start_button.update_font({"color": color, "selected_color": selected_color})
 
@@ -186,40 +207,70 @@ class Menus:
         lost_label = self.stats.get_widget(Labels.LOST.value)
         win_rate_label = self.stats.get_widget(Labels.WIN_RATE.value)
 
-        played_label.set_title(f"Сыграно игр: {stats.played}")
-        lost_label.set_title(f"Поражений: {stats.played - stats.won}")
-        won_label.set_title(f"Побед: {stats.won}")
+        played_label.set_title(f"{stats.played} сыграно игр")
+        lost = stats.played - stats.won
+        lost_label.set_title(f"{lost} поражений")
+        won_label.set_title(f"{stats.won} побед")
 
         win_rate = int(stats.win_rate * 100) if stats.win_rate is not None else 0
-        win_rate_label.set_title(f"Процент побед: {win_rate}%")
+        win_rate_label.set_title(f"{win_rate}% успешных игр")
         win_rate_label.show()
         if stats.win_rate is None:
             win_rate_label.hide()
 
     def _create_stats(self, stats: Statistics):
-        stat = pgm.menu.Menu(title="Статистика", height=self._height, width=self._width, theme=self.theme)
+        stat = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
 
-        stat.add.label(f"Сыграно игр: {stats.played}", label_id=Labels.PLAYED.value)
-        stat.add.label(f"Побед: {stats.won}", label_id=Labels.WON.value)
-        stat.add.label(
-            f"Поражений: {stats.played - stats.won}", label_id=Labels.LOST.value
+        title_label = stat.add.label("Статистика игр")
+        title_label.update_font({"size": self.theme.title_font_size})
+
+        delimiter_label = stat.add.label("")
+
+        played_label = stat.add.label(f"{stats.played} сыграно игр", label_id=Labels.PLAYED.value)
+        won_label = stat.add.label(f"{stats.won} побед", label_id=Labels.WON.value)
+        lost = stats.played - stats.won
+        lost_label = stat.add.label(
+            f"{lost} поражений", label_id=Labels.LOST.value
         )
         win_rate = int(stats.win_rate * 100) if stats.win_rate is not None else 0
         win_rate_label = stat.add.label(
-            f"Процент побед: {win_rate}%", label_id=Labels.WIN_RATE.value
+            f"{win_rate}% успешных игр", label_id=Labels.WIN_RATE.value
         )
         if stats.win_rate is None:
             win_rate_label.hide()
 
-        stat.add.button("Назад", pgm.events.BACK)
-        stat.add.button("Сбросить", post_clear_stats)
+        back_button = stat.add.button("Назад", pgm.events.BACK)
+        clear_button = stat.add.button("Сбросить", post_clear_stats)
+
+        frame_max_width = 400
+
+        played_label.set_max_width(frame_max_width)
+        lost_label.set_max_width(frame_max_width)
+        won_label.set_max_width(frame_max_width)
+
+        stat_frame = stat.add.frame_v(frame_max_width, 350, padding=0)
+        stat_frame.pack(title_label, align=ALIGN_CENTER)
+        stat_frame.pack(delimiter_label)
+        stat_frame.pack(played_label, align=ALIGN_CENTER)
+        stat_frame.pack(won_label, align=ALIGN_CENTER)
+        stat_frame.pack(lost_label, align=ALIGN_CENTER)
+        stat_frame.pack(win_rate_label, align=ALIGN_CENTER)
+
+        buttons_frame = stat.add.frame_h(frame_max_width, 50, padding=0)
+        buttons_frame.pack(back_button)
+        buttons_frame.pack(clear_button, align=ALIGN_RIGHT)
+
         return stat
 
     def _create_settings(self, conditions: Conditions):
         settings = pgm.menu.Menu(
             title="Настройки", height=self._height, width=self._width, theme=self.theme
         )
-        settings.add.selector(
+
+        difficulty_label = settings.add.label("Сложность")
+        difficulty_label.update_font({"size": 34})
+
+        difficulty_selector = settings.add.selector(
             "",
             [
                 (difficulty.translation, difficulty)
@@ -228,66 +279,132 @@ class Menus:
             onchange=self._change_difficulty,
             selector_id="select_difficulty",
         )
-        settings.add.selector(
-            "Подсказка",
+        delimiter_label = settings.add.label("")
+
+        additional_label = settings.add.label("Доп. условия")
+        additional_label.update_font({"size": 34})
+
+        hint_selector = settings.add.selector(
+            "Подсказка: ",
             [("Да", True), ("Нет", False)],
             onchange=self._change_hint,
             selector_id="select_hint",
         )
-        settings.add.selector(
-            "Таймер",
+        timer_selector = settings.add.selector(
+            "Таймер: ",
             [("Да", True), ("Нет", False)],
             onchange=self._change_timer,
             selector_id="select_timer",
         )
-        settings.add.label("Категории")
-        settings.add.selector(
+
+        additional_frame = settings.add.frame_v(width=400, height=400, padding=0)
+        additional_frame.pack(difficulty_label, align=ALIGN_CENTER)
+        additional_frame.pack(difficulty_selector, align=ALIGN_CENTER)
+        additional_frame.pack(delimiter_label, align=ALIGN_CENTER)
+        additional_frame.pack(additional_label, align=ALIGN_CENTER)
+        additional_frame.pack(hint_selector, align=ALIGN_CENTER)
+        additional_frame.pack(timer_selector, align=ALIGN_CENTER)
+
+        category_label = settings.add.label("Категории")
+        category_label.update_font({"size": 34})
+
+        multi_category_selector = settings.add.selector(
             "",
             items=[("выбрать все", "ALL"), ("убрать все", "NONE")],
             onchange=self._change_category,
             selector_id="select_ALL",
         )
 
+        category_selectors = []
         for category in Categories:
-            settings.add.selector(
-                category.value,
+            category_selector = settings.add.selector(
+                category.value + " ",
                 items=[("вкл", category.name), ("выкл", f"NOT_{category.name}")],
                 onchange=self._change_category,
                 selector_id=f"select_{category.name}",
             )
+            category_selectors.append(category_selector)
 
         if len(conditions.categories) == 0:
             post_block_start()
 
-        settings.add.button(
-            "Продолжить", post_start_game, button_id=Buttons.START.value
+        category_frame = settings.add.frame_v(width=400, height=400, padding=0)
+        category_frame.pack(category_label, align=ALIGN_CENTER)
+        category_frame.pack(multi_category_selector, align=ALIGN_CENTER)
+        for category_selector in category_selectors:
+            category_frame.pack(category_selector, align=ALIGN_CENTER)
+
+        conditions_frame = settings.add.frame_h(width=850, height=400, padding=0)
+        conditions_frame.pack(category_frame)
+        conditions_frame.pack(additional_frame, align=ALIGN_RIGHT)
+
+        start_button = settings.add.button(
+            "К игре", post_start_game, button_id=Buttons.START.value
         )
-        settings.add.button("Назад", pgm.events.BACK)
+        back_button = settings.add.button("Назад", pgm.events.BACK)
+
+        buttons_frame = settings.add.frame_h(width=400, height=50, padding=0)
+        buttons_frame.pack(back_button)
+        buttons_frame.pack(start_button, align=ALIGN_RIGHT)
+
         return settings
 
     def _create_main(self, settings, stats):
-        main = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width, theme=self.theme)
+        main = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
+
+        title = main.add.label("Виселица")
+        title.update_font({"size": self.theme.title_font_size})
+
+        delimiter = main.add.label("")
+
         main.add.button("Играть", settings)
         main.add.button("Статистика", stats)
         main.add.button("Выйти", pgm.events.EXIT)
         return main
 
     def _create_pause(self):
-        pause = pgm.menu.Menu(title="Пауза", height=self._height, width=self._width, theme=self.theme)
+        pause = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
+
+        title = pause.add.label("Пауза")
+        title.update_font({"size": self.theme.title_font_size})
+        delimiter = pause.add.label("")
 
         pause.add.button("Продолжить", post_continue)
-        pause.add.button("Закончить игру", post_back_to_main)
+        pause.add.button("Сдаться", post_back_to_main)
 
         return pause
 
     def _create_game(self):
-        game = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width, theme=self.theme)
+        game = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
 
-        game.add.label("", label_id=Labels.TIMER.value)
+        timer_image = game.add.image(ASSETS_DIR / "timer.png", image_id=Images.TIMER.value)
+        timer_label = game.add.label("--:-- ", label_id=Labels.TIMER.value)
+        pause_button = game.add.button(" II ", post_pause, button_id=Buttons.PAUSE.value)
 
-        game.add.image(ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value)
+        timer_label.set_max_width(200)
 
-        game.add.frame_h(40 * 13, 50, padding=0, frame_id=Frames.GUESSED_WORD.value)
+        header_frame = game.add.frame_h(700, 50, padding=0)
+        header_frame.pack(pause_button, align=ALIGN_RIGHT)
+        header_frame.pack(timer_label, align=ALIGN_RIGHT)
+        header_frame.pack(timer_image, vertical_position=POSITION_CENTER, align=ALIGN_RIGHT)
+
+        middle_frame_width = 310
+
+        category_label = game.add.label("Категории")
+
+        category_frame = game.add.frame_v(250, middle_frame_width, padding=0, frame_id=Frames.CATEGORIES.value)
+        category_frame.pack(category_label, align=ALIGN_CENTER, vertical_position=POSITION_NORTH)
+
+        gallows_image = game.add.image(ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value)
+        word_frame = game.add.frame_h(40 * 12, 50, padding=0, frame_id=Frames.GUESSED_WORD.value)
+
+        gallows_frame = game.add.frame_v(500, middle_frame_width, padding=0)
+        gallows_frame.pack(gallows_image, align=ALIGN_CENTER)
+        gallows_frame.pack(word_frame, align=ALIGN_CENTER)
+
+        middle_frame = game.add.frame_h(800, middle_frame_width, padding=0)
+        middle_frame.pack(category_frame, align=ALIGN_LEFT)
+        middle_frame.pack(gallows_frame, align=ALIGN_CENTER)
 
         upper_row = game.add.frame_h(40 * 12, 50, padding=0)
         middle_row = game.add.frame_h(40 * 11, 50, padding=0)
@@ -301,31 +418,46 @@ class Menus:
                     game.add.button(
                         title=letter,
                         action=lambda l=letter: post_letter_chosen(l),
-                        cursor=pgm.locals.CURSOR_HAND,
+                        cursor=CURSOR_HAND,
                         button_id=f"key_{letter}"
                     )
                 )
 
-        game.add.button("Пауза", post_pause, button_id=Buttons.PAUSE.value)
-        game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
+        hint_button = game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
+
+        keyboard_frame = game.add.frame_v(40 * 12, 200, padding=0, align=ALIGN_CENTER)
+        keyboard_frame.pack(upper_row, align=ALIGN_CENTER)
+        keyboard_frame.pack(middle_row, align=ALIGN_CENTER)
+        keyboard_frame.pack(bottom_row, align=ALIGN_CENTER)
+        keyboard_frame.pack(hint_button, align=ALIGN_CENTER)
 
         return game
 
     def _create_victory(self):
         victory = pgm.menu.Menu(
-            title="Вы выиграли!", height=self._height, width=self._width, theme=self.theme
+            title="", height=self._height, width=self._width, theme=self.theme
         )
-        victory.add.button("Назад", post_back_to_main)
+
+        title = victory.add.label("Победа!")
+        title.update_font({"size": self.theme.title_font_size})
+        delimiter = victory.add.label("")
+
+        victory.add.button("Продолжить", post_back_to_main)
         return victory
 
     def _create_defeat(self):
         defeat = pgm.menu.Menu(
-            title="Вы проиграли!", height=self._height, width=self._width, theme=self.theme
+            title="", height=self._height, width=self._width, theme=self.theme
         )
 
+        title = defeat.add.label("Вы проиграли...")
+        title.update_font({"size": self.theme.title_font_size})
+        delimiter = defeat.add.label("")
+
+        guessed_word_label = defeat.add.label("Загаданное слово: ", label_id=Labels.GUESSED_WORD.value)
         defeat.add.image(ASSETS_DIR / "gallows_0.png")
 
-        defeat.add.button("Назад", post_back_to_main)
+        defeat.add.button("Продолжить", post_back_to_main)
         return defeat
 
     # --- onchange methods ---
