@@ -1,5 +1,6 @@
 import json
 from json.decoder import JSONDecodeError
+
 from hangman.helpers import dbg_log
 
 

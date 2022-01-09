@@ -1,11 +1,12 @@
-from hangman.helpers import dbg_log
+import datetime
+import json
+import os.path
+from itertools import compress
+from random import choice
+
 from hangman.conditions import ALL_CATEGORIES, Categories, Conditions, CATEGORY_FILENAME
 from hangman.events import *
-from random import choice
-from itertools import compress
-import datetime
-import os.path
-import json
+from hangman.helpers import dbg_log
 
 ALPHABET = list("ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ")
 
@@ -138,4 +139,8 @@ class GameState:
         elif self._left_to_guess == 0:  # and self._lifes == 0
             post_win()
 
-        dbg_log("process_letter(): letters left = {}; lifes = {}".format(self._left_to_guess, self._lifes))
+        dbg_log(
+            "process_letter(): letters left = {}; lifes = {}".format(
+                self._left_to_guess, self._lifes
+            )
+        )

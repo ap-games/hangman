@@ -1,5 +1,5 @@
-from typing import NamedTuple
 import datetime
+from typing import NamedTuple
 
 from hangman.events import *
 from hangman.helpers import dbg_log

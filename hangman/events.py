@@ -3,7 +3,6 @@ from typing import Any
 
 from pygame import event
 
-
 CLEAR_STATS = event.custom_type()
 HINT = event.custom_type()
 PAUSE = event.custom_type()
