@@ -34,6 +34,7 @@ class Labels(Enum):
     LOST = "label_lost"
     WIN_RATE = "label_win_rate"
     TIMER = "label_timer"
+    GUESSED_WORD = "label_guessed_word"
 
 
 class Images(Enum):
@@ -51,6 +52,7 @@ def create_theme() -> pgm.Theme:
 
     # Убрать меню-бар
     theme.title = False
+    theme.title_font_size = 46
 
     return theme
 
@@ -141,6 +143,10 @@ class Menus:
             letter_button.update_font({"color": color})
             letter_button.update_callback(lambda l=letter: post_letter_chosen(l))
 
+        # На экране проигрыша обновить загаданное слово
+        guessed_word_label = self.defeat.get_widget(Labels.GUESSED_WORD.value)
+        guessed_word_label.set_title(f"Загаданное слово: {word}")
+
     def show_hint(self, game_state: GameState):
         game_state.use_hint()
         hint_letter = ""  # буква, которую нужно подсветить
@@ -216,6 +222,8 @@ class Menus:
         stat = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
 
         title_label = stat.add.label("Статистика игр")
+        title_label.update_font({"size": self.theme.title_font_size})
+
         delimiter_label = stat.add.label("")
 
         played_label = stat.add.label(f"{stats.played} сыграно игр", label_id=Labels.PLAYED.value)
@@ -234,7 +242,7 @@ class Menus:
         back_button = stat.add.button("Назад", pgm.events.BACK)
         clear_button = stat.add.button("Сбросить", post_clear_stats)
 
-        frame_max_width = 300
+        frame_max_width = 400
 
         played_label.set_max_width(frame_max_width)
         lost_label.set_max_width(frame_max_width)
@@ -260,6 +268,8 @@ class Menus:
         )
 
         difficulty_label = settings.add.label("Сложность")
+        difficulty_label.update_font({"size": 34})
+
         difficulty_selector = settings.add.selector(
             "",
             [
@@ -270,7 +280,10 @@ class Menus:
             selector_id="select_difficulty",
         )
         delimiter_label = settings.add.label("")
+
         additional_label = settings.add.label("Доп. условия")
+        additional_label.update_font({"size": 34})
+
         hint_selector = settings.add.selector(
             "Подсказка: ",
             [("Да", True), ("Нет", False)],
@@ -293,6 +306,8 @@ class Menus:
         additional_frame.pack(timer_selector, align=ALIGN_CENTER)
 
         category_label = settings.add.label("Категории")
+        category_label.update_font({"size": 34})
+
         multi_category_selector = settings.add.selector(
             "",
             items=[("выбрать все", "ALL"), ("убрать все", "NONE")],
@@ -335,14 +350,24 @@ class Menus:
         return settings
 
     def _create_main(self, settings, stats):
-        main = pgm.menu.Menu(title="Hangman", height=self._height, width=self._width, theme=self.theme)
+        main = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
+
+        title = main.add.label("Виселица")
+        title.update_font({"size": self.theme.title_font_size})
+
+        delimiter = main.add.label("")
+
         main.add.button("Играть", settings)
         main.add.button("Статистика", stats)
         main.add.button("Выйти", pgm.events.EXIT)
         return main
 
     def _create_pause(self):
-        pause = pgm.menu.Menu(title="Пауза", height=self._height, width=self._width, theme=self.theme)
+        pause = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
+
+        title = pause.add.label("Пауза")
+        title.update_font({"size": self.theme.title_font_size})
+        delimiter = pause.add.label("")
 
         pause.add.button("Продолжить", post_continue)
         pause.add.button("Сдаться", post_back_to_main)
@@ -410,19 +435,29 @@ class Menus:
 
     def _create_victory(self):
         victory = pgm.menu.Menu(
-            title="Вы выиграли!", height=self._height, width=self._width, theme=self.theme
+            title="", height=self._height, width=self._width, theme=self.theme
         )
-        victory.add.button("Назад", post_back_to_main)
+
+        title = victory.add.label("Победа!")
+        title.update_font({"size": self.theme.title_font_size})
+        delimiter = victory.add.label("")
+
+        victory.add.button("Продолжить", post_back_to_main)
         return victory
 
     def _create_defeat(self):
         defeat = pgm.menu.Menu(
-            title="Вы проиграли!", height=self._height, width=self._width, theme=self.theme
+            title="", height=self._height, width=self._width, theme=self.theme
         )
 
+        title = defeat.add.label("Вы проиграли...")
+        title.update_font({"size": self.theme.title_font_size})
+        delimiter = defeat.add.label("")
+
+        guessed_word_label = defeat.add.label("Загаданное слово: ", label_id=Labels.GUESSED_WORD.value)
         defeat.add.image(ASSETS_DIR / "gallows_0.png")
 
-        defeat.add.button("Назад", post_back_to_main)
+        defeat.add.button("Продолжить", post_back_to_main)
         return defeat
 
     # --- onchange methods ---
