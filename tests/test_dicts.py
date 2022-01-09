@@ -1,10 +1,9 @@
-import unittest
-import os.path
 import json
+import os.path
+import unittest
 from pathlib import Path
 
-from hangman.conditions import CATEGORY_FILENAME, Difficulties, Difficulty, Categories
-
+from hangman.conditions import CATEGORY_FILENAME, Difficulties, Difficulty
 
 CUR_FILE_PATH = Path(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = CUR_FILE_PATH.parent
@@ -40,7 +39,9 @@ class TestDicts(unittest.TestCase):
                 with open(DICT_DIR / filename, "r") as _:
                     pass
             except FileNotFoundError:
-                self.fail(f"Not found dict for category {category.name} (filename '{filename}')")
+                self.fail(
+                    f"Not found dict for category {category.name} (filename '{filename}')"
+                )
 
 
 def dict_handle_difficulty(dict_name: str, difficulty: Difficulty) -> bool:

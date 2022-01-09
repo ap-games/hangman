@@ -1,12 +1,11 @@
 import pygame as pg
 
-from hangman.helpers import dbg_log
-from hangman.events import *
-
-from hangman.statistics import Statistics
-from hangman.menus import Menus
-from hangman.gamestate import GameState
 from hangman.conditions import Conditions, Difficulties, ALL_CATEGORIES
+from hangman.events import *
+from hangman.gamestate import GameState
+from hangman.helpers import dbg_log
+from hangman.menus import Menus
+from hangman.statistics import Statistics
 
 
 class Game:

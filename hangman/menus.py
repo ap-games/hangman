@@ -1,11 +1,18 @@
-import pygame_menu as pgm
-from pygame_menu.locals import ALIGN_RIGHT, ALIGN_LEFT, ALIGN_CENTER, POSITION_CENTER, CURSOR_HAND, POSITION_NORTH
-from typing import Tuple
 import datetime
+import os.path
+from pathlib import Path
+from typing import Tuple
 
-from hangman.helpers import do_nothing
-from hangman.events import *
-from hangman.gamestate import ALPHABET, GameState
+import pygame_menu as pgm
+from pygame_menu.locals import (
+    ALIGN_RIGHT,
+    ALIGN_LEFT,
+    ALIGN_CENTER,
+    POSITION_CENTER,
+    CURSOR_HAND,
+    POSITION_NORTH,
+)
+
 from hangman.conditions import (
     ALL_CATEGORIES,
     NAME_TO_CAT,
@@ -14,9 +21,10 @@ from hangman.conditions import (
     Difficulties,
     Difficulty,
 )
+from hangman.events import *
+from hangman.gamestate import ALPHABET, GameState
+from hangman.helpers import do_nothing
 from hangman.statistics import Statistics
-from pathlib import Path
-import os.path
 
 CUR_FILE_PATH = Path(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = CUR_FILE_PATH.parent
@@ -64,11 +72,11 @@ class Menus:
     """
 
     def __init__(
-            self,
-            width: int,
-            height: int,
-            conditions: Conditions,
-            stats: Statistics,
+        self,
+        width: int,
+        height: int,
+        conditions: Conditions,
+        stats: Statistics,
     ):
         self._height = height
         self._width = width
@@ -109,7 +117,10 @@ class Menus:
 
         # Подготовить новое угадываемое слово
         for idx, letter in enumerate(word):
-            guessed_word.pack(self.game.add.label(title="_", label_id=f"{letter}_{idx}"), align=ALIGN_CENTER)
+            guessed_word.pack(
+                self.game.add.label(title="_", label_id=f"{letter}_{idx}"),
+                align=ALIGN_CENTER,
+            )
 
         # Убрать старые категории
         categories_frame = self.game.get_widget(Frames.CATEGORIES.value)
@@ -122,7 +133,9 @@ class Menus:
         for category in conditions.categories:
             category_label = self.game.add.label(category.value)
             category_label.update_font({"size": 20})
-            categories_frame.pack(category_label, align=ALIGN_CENTER, vertical_position=POSITION_NORTH)
+            categories_frame.pack(
+                category_label, align=ALIGN_CENTER, vertical_position=POSITION_NORTH
+            )
 
         # Подготовить таймер
         timer = self.game.get_widget(Labels.TIMER.value)
@@ -220,19 +233,21 @@ class Menus:
             win_rate_label.hide()
 
     def _create_stats(self, stats: Statistics):
-        stat = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
+        stat = pgm.menu.Menu(
+            title="", height=self._height, width=self._width, theme=self.theme
+        )
 
         title_label = stat.add.label("Статистика игр")
         title_label.update_font({"size": self.theme.title_font_size})
 
         delimiter_label = stat.add.label("")
 
-        played_label = stat.add.label(f"{stats.played} сыграно игр", label_id=Labels.PLAYED.value)
+        played_label = stat.add.label(
+            f"{stats.played} сыграно игр", label_id=Labels.PLAYED.value
+        )
         won_label = stat.add.label(f"{stats.won} побед", label_id=Labels.WON.value)
         lost = stats.played - stats.won
-        lost_label = stat.add.label(
-            f"{lost} поражений", label_id=Labels.LOST.value
-        )
+        lost_label = stat.add.label(f"{lost} поражений", label_id=Labels.LOST.value)
         win_rate = int(stats.win_rate * 100) if stats.win_rate is not None else 0
         win_rate_label = stat.add.label(
             f"{win_rate}% успешных игр", label_id=Labels.WIN_RATE.value
@@ -351,7 +366,9 @@ class Menus:
         return settings
 
     def _create_main(self, settings, stats):
-        main = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
+        main = pgm.menu.Menu(
+            title="", height=self._height, width=self._width, theme=self.theme
+        )
 
         title = main.add.label("Виселица")
         title.update_font({"size": self.theme.title_font_size})
@@ -363,7 +380,9 @@ class Menus:
         return main
 
     def _create_pause(self):
-        pause = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
+        pause = pgm.menu.Menu(
+            title="", height=self._height, width=self._width, theme=self.theme
+        )
 
         title = pause.add.label("Пауза")
         title.update_font({"size": self.theme.title_font_size})
@@ -375,28 +394,44 @@ class Menus:
         return pause
 
     def _create_game(self):
-        game = pgm.menu.Menu(title="", height=self._height, width=self._width, theme=self.theme)
+        game = pgm.menu.Menu(
+            title="", height=self._height, width=self._width, theme=self.theme
+        )
 
-        timer_image = game.add.image(ASSETS_DIR / "timer.png", image_id=Images.TIMER.value)
+        timer_image = game.add.image(
+            ASSETS_DIR / "timer.png", image_id=Images.TIMER.value
+        )
         timer_label = game.add.label("--:-- ", label_id=Labels.TIMER.value)
-        pause_button = game.add.button(" II ", post_pause, button_id=Buttons.PAUSE.value)
+        pause_button = game.add.button(
+            " II ", post_pause, button_id=Buttons.PAUSE.value
+        )
 
         timer_label.set_max_width(200)
 
         header_frame = game.add.frame_h(700, 50, padding=0)
         header_frame.pack(pause_button, align=ALIGN_RIGHT)
         header_frame.pack(timer_label, align=ALIGN_RIGHT)
-        header_frame.pack(timer_image, vertical_position=POSITION_CENTER, align=ALIGN_RIGHT)
+        header_frame.pack(
+            timer_image, vertical_position=POSITION_CENTER, align=ALIGN_RIGHT
+        )
 
         middle_frame_width = 310
 
         category_label = game.add.label("Категории")
 
-        category_frame = game.add.frame_v(250, middle_frame_width, padding=0, frame_id=Frames.CATEGORIES.value)
-        category_frame.pack(category_label, align=ALIGN_CENTER, vertical_position=POSITION_NORTH)
+        category_frame = game.add.frame_v(
+            250, middle_frame_width, padding=0, frame_id=Frames.CATEGORIES.value
+        )
+        category_frame.pack(
+            category_label, align=ALIGN_CENTER, vertical_position=POSITION_NORTH
+        )
 
-        gallows_image = game.add.image(ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value)
-        word_frame = game.add.frame_h(40 * 12, 50, padding=0, frame_id=Frames.GUESSED_WORD.value)
+        gallows_image = game.add.image(
+            ASSETS_DIR / "gallows_8.png", image_id=Images.GALLOWS.value
+        )
+        word_frame = game.add.frame_h(
+            40 * 12, 50, padding=0, frame_id=Frames.GUESSED_WORD.value
+        )
 
         gallows_frame = game.add.frame_v(500, middle_frame_width, padding=0)
         gallows_frame.pack(gallows_image, align=ALIGN_CENTER)
@@ -419,11 +454,13 @@ class Menus:
                         title=letter,
                         action=lambda l=letter: post_letter_chosen(l),
                         cursor=CURSOR_HAND,
-                        button_id=f"key_{letter}"
+                        button_id=f"key_{letter}",
                     )
                 )
 
-        hint_button = game.add.button("Подсказка", post_hint, button_id=Buttons.HINT.value)
+        hint_button = game.add.button(
+            "Подсказка", post_hint, button_id=Buttons.HINT.value
+        )
 
         keyboard_frame = game.add.frame_v(40 * 12, 200, padding=0, align=ALIGN_CENTER)
         keyboard_frame.pack(upper_row, align=ALIGN_CENTER)
@@ -454,7 +491,9 @@ class Menus:
         title.update_font({"size": self.theme.title_font_size})
         delimiter = defeat.add.label("")
 
-        guessed_word_label = defeat.add.label("Загаданное слово: ", label_id=Labels.GUESSED_WORD.value)
+        defeat.add.label(
+            "Загаданное слово: ", label_id=Labels.GUESSED_WORD.value
+        )
         defeat.add.image(ASSETS_DIR / "gallows_0.png")
 
         defeat.add.button("Продолжить", post_back_to_main)
@@ -488,4 +527,3 @@ class Menus:
         elif NAME_TO_CAT.get(category_name[4:]) in ALL_CATEGORIES:
             category = NAME_TO_CAT[category_name[4:]]
             post_change_conditions(ConditionsChange.REMOVE_CATEGORY, category)
-
