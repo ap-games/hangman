@@ -18,6 +18,7 @@ CHANGE_CONDITIONS = event.custom_type()
 BLOCK_START = event.custom_type()
 ALLOW_START = event.custom_type()
 WRONG_GUESS = event.custom_type()
+SURRENDER = event.custom_type()
 
 
 class ConditionsChange(Enum):
@@ -26,6 +27,10 @@ class ConditionsChange(Enum):
     TIMER = "CHANGE_TIMER"
     ADD_CATEGORY = "ADD_CATEGORY"
     REMOVE_CATEGORY = "REMOVE_CATEGORY"
+
+
+def post_surrender():
+    event.post(event.Event(SURRENDER))
 
 
 def post_wrong_guess():

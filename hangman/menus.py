@@ -355,7 +355,6 @@ class Menus:
 
         title = main.add.label("Виселица")
         title.update_font({"size": self.theme.title_font_size})
-
         delimiter = main.add.label("")
 
         main.add.button("Играть", settings)
@@ -371,7 +370,7 @@ class Menus:
         delimiter = pause.add.label("")
 
         pause.add.button("Продолжить", post_continue)
-        pause.add.button("Сдаться", post_back_to_main)
+        pause.add.button("Сдаться", post_surrender)
 
         return pause
 

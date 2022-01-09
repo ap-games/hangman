@@ -119,6 +119,12 @@ class Game:
             dbg_log("on_event(): ALLOW_START")
             self._menus.allow_start()
 
+        elif event.type == SURRENDER:
+            dbg_log("on_event(): SURRENDER")
+            self._stats.played += 1
+            self._menus.update_stats(self._stats)
+            post_back_to_main()
+
     def run(self):
         clock = pg.time.Clock()
 
