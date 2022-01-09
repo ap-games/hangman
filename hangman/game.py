@@ -1,6 +1,6 @@
 import pygame as pg
 
-import time
+from hangman.helpers import dbg_log
 from hangman.events import *
 
 from hangman.statistics import Statistics
@@ -39,84 +39,84 @@ class Game:
 
     def on_event(self, event):
         if event.type == pg.QUIT:
-            print("[dbg] on_event(): pg.QUIT")
+            dbg_log("on_event(): pg.QUIT")
             self._running = False
 
         elif event.type == pg.VIDEORESIZE:
-            print("[dbg] on_event(): pg.VIDEORESIZE")
+            dbg_log("on_event(): pg.VIDEORESIZE")
             size = event.w, event.h
             self._surface = pg.display.set_mode(size, pg.RESIZABLE)
             self._width, self._height = event.w, event.h
             self._menus.resize(event.w, event.h)
 
         elif event.type == CLEAR_STATS:
-            print("[dbg] on_event(): CLEAR_STATS")
+            dbg_log("on_event(): CLEAR_STATS")
             self._stats.clear()
             self._menus.update_stats(self._stats)
 
         elif event.type == HINT:
-            print("[dbg] on_event(): HINT")
+            dbg_log("on_event(): HINT")
             self._menus.show_hint(self._game_state)
             self._menus.hide_hint_button()
 
         elif event.type == PAUSE:
-            print("[dbg] on_event(): PAUSE")
+            dbg_log("on_event(): PAUSE")
             self._current_menu = self._menus.pause
 
         elif event.type == CONTINUE:
-            print("[dbg] on_event(): CONTINUE")
+            dbg_log("on_event(): CONTINUE")
             self._game_state.unpause()
             self._current_menu = self._menus.game
 
         elif event.type == WRONG_GUESS:
-            print(f"[dbg] on_event(); DRAW_GALLOWS")
+            dbg_log(f"on_event(): DRAW_GALLOWS")
             self._menus.update_gallows(self._game_state.lifes)
 
         elif event.type == LOSE:
-            print("[dbg] on_event(): LOSE")
+            dbg_log("on_event(): LOSE")
             self._stats.played += 1
             self._menus.update_stats(self._stats)
             self._current_menu = self._menus.defeat
 
         elif event.type == WIN:
-            print("[dbg] on_event(): WIN")
+            dbg_log("on_event(): WIN")
             self._stats.played += 1
             self._stats.won += 1
             self._menus.update_stats(self._stats)
             self._current_menu = self._menus.victory
 
         elif event.type == START_GAME:
-            print("[dbg] on_event(); START_GAME")
+            dbg_log("on_event(): START_GAME")
             self._game_state.new_game(self._conditions)
             self._menus.setup_game(self._conditions, self._game_state.word)
             self._current_menu = self._menus.game
 
         elif event.type == BACK_TO_MAIN:
-            print("[dbg] on_event(); BACK_TO_MAIN")
+            dbg_log("on_event(): BACK_TO_MAIN")
             self._current_menu = self._menus.main
 
         elif event.type == HIDE_HINT:
-            print("[dbg] on_event(); HIDE_HINT")
+            dbg_log("on_event(): HIDE_HINT")
             self._menus.hide_hint_button()
 
         elif event.type == LETTER_CHOSEN:
-            print(f"[dbg] on_event(); LETTER_CHOSEN {event.letter}")
+            dbg_log(f"on_event(): LETTER_CHOSEN {event.letter}")
             self._game_state.process_letter(event.letter)
             self._menus.reveal_letter(event.letter)
             self._menus.block_letter(event.letter)
 
         elif event.type == CHANGE_CONDITIONS:
-            print("[dbg] on_event(); CHANGE_CONDITIONS")
+            dbg_log("on_event(): CHANGE_CONDITIONS")
             action = event.action
             value = event.value
             self._conditions.handle_action(action, value)
 
         elif event.type == BLOCK_START:
-            print("[dbg] on_event(); BLOCK_START")
+            dbg_log("on_event(): BLOCK_START")
             self._menus.block_start()
 
         elif event.type == ALLOW_START:
-            print("[dbg] on_event(); ALLOW_START")
+            dbg_log("on_event(): ALLOW_START")
             self._menus.allow_start()
 
     def run(self):

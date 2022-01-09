@@ -1,4 +1,4 @@
-from collections import defaultdict
+from hangman.helpers import dbg_log
 from hangman.conditions import ALL_CATEGORIES, Categories, Conditions
 from hangman.events import *
 from random import choice
@@ -27,7 +27,7 @@ class GameState:
     def __init__(self):
         self.time_left: datetime.timedelta = 0
         self.word: str = ""
-        self.processed_letters: dict(str, bool) = dict.fromkeys(ALPHABET, False)
+        self.processed_letters: dict[str, bool] = dict.fromkeys(ALPHABET, False)
 
         self._lifes: int = 0
         self._left_to_guess: int = 0
@@ -112,15 +112,15 @@ class GameState:
         #     raise ImportError
 
         word = choice(words_with_matching_ul)
-        print(f"[dbg] guessed word: {word}")
+        dbg_log(f"_get_word(): guessed word: {word}")
         return word
 
     def process_letter(self, letter: str):
         if self.processed_letters[letter]:
-            print(f"Letter {letter} was already chosen!")
+            dbg_log(f"process_letter(): letter {letter} was already chosen!")
             return
 
-        print(f"Chosen letter: {letter}")
+        dbg_log(f"process_letter(): chosen letter: {letter}")
 
         self.processed_letters[letter] = True
 
@@ -129,7 +129,7 @@ class GameState:
         chosen = list(self.processed_letters.values())
         not_chosen = [not c for c in chosen]
         left_letters = list(compress(all_letters, not_chosen))
-        print(f"Letters left: {''.join(left_letters)}")
+        dbg_log(f"process_letter(): letters left: {''.join(left_letters)}")
 
         if letter not in self.word:
             self._lifes -= 1
@@ -147,4 +147,4 @@ class GameState:
         elif self._left_to_guess == 0:  # and self._lifes == 0
             post_win()
 
-        print("Letters left = {}; Lifes = {}".format(self._left_to_guess, self._lifes))
+        dbg_log("process_letter(): letters left = {}; lifes = {}".format(self._left_to_guess, self._lifes))

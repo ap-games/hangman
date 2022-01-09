@@ -1,8 +1,8 @@
-from enum import Enum
 from typing import NamedTuple
 import datetime
 
 from hangman.events import *
+from hangman.helpers import dbg_log
 
 
 class Difficulty(NamedTuple):
@@ -82,14 +82,14 @@ class Conditions:
             self.remove_category(value)
 
     def add_category(self, category: Categories):
-        print("[dbg] added category ", category)
+        dbg_log(f"add_category(): added category {category}")
         self.categories.add(category)
         if len(self.categories) == 1:
             # если добавили хоть одну категорию, разрешить старт
             post_allow_start()
 
     def remove_category(self, category: Categories):
-        print("[dbg] removed category ", category)
+        dbg_log(f"remove_category(): removed category {category}")
         self.categories.discard(category)
         if len(self.categories) == 0:
             # если убрали все категории, запретить старт
@@ -109,7 +109,7 @@ class Conditions:
 
     @difficulty.setter
     def difficulty(self, difficulty: Difficulty):
-        print("[dbg] difficulty set to ", difficulty.name)
+        dbg_log(f"difficulty(): difficulty set to {difficulty.name}")
         self._difficulty = difficulty
 
     @property
@@ -118,7 +118,7 @@ class Conditions:
 
     @has_timer.setter
     def has_timer(self, has_timer: bool):
-        print("[dbg] has_timer set to ", has_timer)
+        dbg_log(f"has_timer(): has_timer set to {has_timer}")
         self._has_timer = has_timer
 
     @property
@@ -127,5 +127,5 @@ class Conditions:
 
     @has_hint.setter
     def has_hint(self, has_hint: bool):
-        print("[dbg] has_hint set to ", has_hint)
+        dbg_log(f"has_hint(): has_hint set to {has_hint}")
         self._has_hint = has_hint

@@ -3,6 +3,7 @@ from pygame_menu.locals import ALIGN_RIGHT, ALIGN_LEFT, ALIGN_CENTER, POSITION_C
 from typing import Tuple
 import datetime
 
+from hangman.helpers import do_nothing
 from hangman.events import *
 from hangman.gamestate import ALPHABET, GameState
 from hangman.conditions import (
@@ -489,10 +490,3 @@ class Menus:
             category = NAME_TO_CAT[category_name[4:]]
             post_change_conditions(ConditionsChange.REMOVE_CATEGORY, category)
 
-
-def do_nothing():
-    """
-    Функция которая не делает ничего.
-    Используется как callback для блокировки кнопок
-    """
-    pass

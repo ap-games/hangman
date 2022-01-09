@@ -1,5 +1,6 @@
 import json
 from json.decoder import JSONDecodeError
+from hangman.helpers import dbg_log
 
 
 class Statistics:
@@ -37,7 +38,7 @@ class Statistics:
         with open(self._filename, "w") as fstat:
             fstat.write(json.dumps(stats))
             fstat.flush()
-        print(f"Written new stats to file: {stats}")
+        dbg_log(f"Written new stats to file: {stats}")
 
     def clear(self) -> None:
         """
