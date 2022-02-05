@@ -28,7 +28,7 @@ from hangman.statistics import Statistics
 
 CUR_FILE_PATH = Path(os.path.dirname(os.path.abspath(__file__)))
 ROOT_DIR = CUR_FILE_PATH.parent
-ASSETS_DIR = ROOT_DIR / "assets"
+ASSETS_DIR = ROOT_DIR / "images"
 
 
 class Buttons(Enum):
@@ -491,9 +491,7 @@ class Menus:
         title.update_font({"size": self.theme.title_font_size})
         delimiter = defeat.add.label("")
 
-        defeat.add.label(
-            "Загаданное слово: ", label_id=Labels.GUESSED_WORD.value
-        )
+        defeat.add.label("Загаданное слово: ", label_id=Labels.GUESSED_WORD.value)
         defeat.add.image(ASSETS_DIR / "gallows_0.png")
 
         defeat.add.button("Продолжить", post_back_to_main)
